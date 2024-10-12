@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity(), AMap.OnMapClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // anything
+
         // 更新隐私合规状态
 //        MapsInitializer.updatePrivacyShow(this, true, true)
 //        MapsInitializer.updatePrivacyAgree(this, true)
