@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools" package="com.example.amap">
-    <!--允许访问网络，必选权限-->
+          xmlns:tools="http://schemas.android.com/tools">
+    
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!--允许获取粗略位置，若用GPS实现定位小蓝点功能则必选-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!--允许获取网络状态，用于网络定位，若无gps但仍需实现定位小蓝点功能则此权限必选-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!--允许获取wifi网络信息，用于网络定位，若无gps但仍需实现定位小蓝点功能则此权限必选-->
@@ -31,6 +30,7 @@
         android:required="true" />
 
     <application
+            android:name=".App"
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="CycleQuest"
@@ -47,7 +47,7 @@
         <!-- 定位服务 -->
         <service android:name="com.amap.api.location.APSService" />
 
-        <activity android:name=".MainActivity"
+        <activity android:name=".application.ui.MainActivity"
                   android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

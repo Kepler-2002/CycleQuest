@@ -11,7 +11,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.MapView
-import com.amap.api.maps2d.MapsInitializer
 import com.amap.api.maps2d.model.LatLng
 import com.amap.api.maps2d.model.MarkerOptions
 import com.amap.api.maps2d.model.PolylineOptions
