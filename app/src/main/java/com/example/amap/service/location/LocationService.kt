@@ -1,12 +1,12 @@
-package com.example.amap.service
+package com.example.amap.service.location
 
 import android.content.Context
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
-import com.example.amap.core.utils.PermissionUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 @Singleton
 class LocationService @Inject constructor(
@@ -16,24 +16,30 @@ class LocationService @Inject constructor(
 
     init {
         try {
+            AMapLocationClient.updatePrivacyShow(context, true, true)
+            AMapLocationClient.updatePrivacyAgree(context, true)
             locationClient = AMapLocationClient(context)
             val option = AMapLocationClientOption()
             option.locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
             locationClient.setLocationOption(option)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "初始化定位服务失败")
         }
     }
 
     fun startLocation() {
-        if (PermissionUtil.isPermissionGranted(context, PermissionUtil.LOCATION)) {
+        try {
             locationClient.startLocation()
-        } else {
-            // 处理权限未授予的情况
+        } catch (e: Exception) {
+            Timber.e(e, "启动定位失败")
         }
     }
 
     fun stopLocation() {
-        locationClient.stopLocation()
+        try {
+            locationClient.stopLocation()
+        } catch (e: Exception) {
+            Timber.e(e, "停止定位失败")
+        }
     }
 }

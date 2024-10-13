@@ -11,14 +11,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.amap.application.ui.screens.*
-import com.example.amap.application.ui.theme.AMapTheme
 import com.example.amap.ui.theme.AMapTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
+import okhttp3.OkHttpClient
+import org.greenrobot.eventbus.EventBus
+import org.slf4j.LoggerFactory
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val logger = LoggerFactory.getLogger(MainActivity::class.java)
+    private val okHttpClient = OkHttpClient()
+    private val eventBus = EventBus.getDefault()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        logger.info("MainActivity created")
         setContent {
             AMapTheme {
                 MainScreen()
@@ -33,13 +45,21 @@ fun MainScreen() {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("单车控制", "地图", "论坛", "设置")
+    
+    // 修改图标列表
+    val icons = listOf(
+        Icons.Filled.Home,
+        Icons.Filled.Place,
+        Icons.Filled.Info,
+        Icons.Filled.Settings
+    )
 
     Scaffold(
         bottomBar = {
             NavigationBar {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = { Icon(/* 这里需要添加适当的图标 */) },
+                        icon = { Icon(icons[index], contentDescription = item) },
                         label = { Text(item) },
                         selected = selectedItem == index,
                         onClick = {
