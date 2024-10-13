@@ -1,21 +1,24 @@
 package com.example.amap.application.ui.screens
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.amap.api.maps.model.CameraPosition
-import com.amap.api.maps.model.LatLng
-import com.example.amap.application.viewmodels.MapViewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LocationOn
 import com.example.amap.application.ui.components.map.AMapComposable
 import com.example.amap.application.ui.components.map.rememberCameraPositionState
+import com.example.amap.application.viewmodels.MapViewModel
+import com.amap.api.maps2d.model.CameraPosition
 
 @Composable
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
-    var cameraPositionState by remember { mutableStateOf(rememberCameraPositionState()) }
+    val cameraPositionState = rememberCameraPositionState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         AMapComposable(
@@ -33,17 +36,19 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.MyLocation,
+                    imageVector = Icons.Default.LocationOn,
                     contentDescription = "定位"
                 )
             }
 
             FloatingActionButton(
                 onClick = { 
-                    cameraPositionState = cameraPositionState.copy(
-                        position = cameraPositionState.position.copy(
-                            zoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
-                        )
+                    val newZoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
+                    cameraPositionState.position = CameraPosition(
+                        cameraPositionState.position.target,
+                        newZoom,
+                        cameraPositionState.position.tilt,
+                        cameraPositionState.position.bearing
                     )
                 },
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -56,15 +61,17 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
 
             FloatingActionButton(
                 onClick = { 
-                    cameraPositionState = cameraPositionState.copy(
-                        position = cameraPositionState.position.copy(
-                            zoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
-                        )
+                    val newZoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
+                    cameraPositionState.position = CameraPosition(
+                        cameraPositionState.position.target,
+                        newZoom,
+                        cameraPositionState.position.tilt,
+                        cameraPositionState.position.bearing
                     )
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Remove,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = "缩小"
                 )
             }
