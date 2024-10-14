@@ -1,4 +1,4 @@
-package com.example.amap.application.ui.screens
+package com.cyclequest.application.ui.screens
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.layout.*
@@ -11,9 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import com.example.amap.application.ui.components.map.AMapComposable
-import com.example.amap.application.ui.components.map.rememberCameraPositionState
-import com.example.amap.application.viewmodels.MapViewModel
+import com.cyclequest.application.ui.components.map.AMapComposable
+import com.cyclequest.application.ui.components.map.rememberCameraPositionState
+import com.cyclequest.application.viewmodels.MapViewModel
 import com.amap.api.maps2d.model.CameraPosition
 
 @Composable

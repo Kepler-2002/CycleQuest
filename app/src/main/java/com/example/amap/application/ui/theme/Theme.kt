@@ -1,4 +1,4 @@
-package com.example.amap.ui.theme
+package com.cyclequest.ui.theme
 
 import android.app.Activity
 import android.os.Build

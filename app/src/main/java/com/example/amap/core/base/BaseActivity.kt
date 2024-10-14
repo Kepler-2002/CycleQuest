@@ -1,4 +1,4 @@
-package com.example.amap.core.base
+package com.cyclequest.core.base
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

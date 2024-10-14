@@ -1,4 +1,4 @@
-package com.example.amap.core.di
+package com.cyclequest.core.di
 
 import android.app.Application
 import dagger.Module
@@ -9,7 +9,7 @@ import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import org.greenrobot.eventbus.EventBus
 import timber.log.Timber
-import com.example.amap.core.AppInitializer
+import com.cyclequest.core.AppInitializer
 
 @Module
 @InstallIn(SingletonComponent::class)

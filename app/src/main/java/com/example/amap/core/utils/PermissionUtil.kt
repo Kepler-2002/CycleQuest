@@ -1,4 +1,4 @@
-package com.example.amap.core.utils
+package com.cyclequest.core.utils
 
 import android.content.Context
 import android.content.pm.PackageManager
