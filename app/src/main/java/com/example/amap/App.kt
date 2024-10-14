@@ -1,8 +1,8 @@
-package com.example.amap
+package com.cyclequest
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import com.example.amap.core.AppInitializer
+import com.cyclequest.core.AppInitializer
 import javax.inject.Inject
 
 @HiltAndroidApp

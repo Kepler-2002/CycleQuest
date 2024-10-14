@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AMap"
+rootProject.name = "CycleQuest"
 include(":app")

@@ -1,4 +1,4 @@
-package com.example.amap
+package com.cyclequest
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.example.amap.core
+package com.cyclequest.core
 
 import android.app.Application
 import com.amap.api.maps2d.MapsInitializer

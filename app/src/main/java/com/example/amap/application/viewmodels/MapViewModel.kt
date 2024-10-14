@@ -1,7 +1,7 @@
-package com.example.amap.application.viewmodels
+package com.cyclequest.application.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.amap.service.location.LocationService
+import com.cyclequest.service.location.LocationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

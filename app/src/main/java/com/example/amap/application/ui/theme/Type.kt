@@ -1,4 +1,4 @@
-package com.example.amap.ui.theme
+package com.cyclequest.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

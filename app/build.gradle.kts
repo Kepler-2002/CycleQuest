@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.amap"
+    namespace = "com.cyclequest"
     compileSdk = 34
     
     defaultConfig {
-        applicationId = "com.example.amap"
+        applicationId = "com.cyclequest"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
