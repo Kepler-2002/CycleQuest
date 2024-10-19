@@ -1,4 +1,4 @@
-package com.example.amap.service.location
+package com.cyclequest.service.location
 
 import android.content.Context
 import com.amap.api.location.AMapLocationClient

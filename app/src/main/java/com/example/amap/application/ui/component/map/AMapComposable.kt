@@ -1,4 +1,4 @@
-package com.example.amap.application.ui.components.map
+package com.cyclequest.application.ui.components.map
 
 import android.content.Context
 import androidx.compose.runtime.Composable

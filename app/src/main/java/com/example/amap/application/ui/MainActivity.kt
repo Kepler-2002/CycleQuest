@@ -1,4 +1,4 @@
-package com.example.amap.application.ui
+package com.cyclequest.application.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.amap.application.ui.screens.*
-import com.example.amap.ui.theme.AMapTheme
+import com.cyclequest.application.ui.screens.*
+import com.cyclequest.ui.theme.AMapTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
