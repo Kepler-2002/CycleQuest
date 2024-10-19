@@ -20,13 +20,12 @@ class AppInitializer @Inject constructor(
 
     private fun initializeLogging() {
         Timber.plant(timberTree)
+        Timber.plant(Timber.DebugTree())
         Timber.d("Logging initialized")
     }
 
     private fun initializeMapSDK() {
         MapsInitializer.initialize(application)
-//        MapsInitializer.updatePrivacyShow(application, true, true)
-//        MapsInitializer.updatePrivacyAgree(application, true)
         Timber.d("Map SDK initialized")
     }
 

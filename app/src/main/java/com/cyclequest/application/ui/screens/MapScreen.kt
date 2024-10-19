@@ -15,10 +15,36 @@ import com.cyclequest.application.ui.components.map.AMapComposable
 import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
 import com.amap.api.maps2d.model.CameraPosition
+import com.amap.api.maps2d.model.LatLng
+import androidx.compose.runtime.LaunchedEffect
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.isGranted
+import android.Manifest
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val cameraPositionState = rememberCameraPositionState()
+    val currentLocation by viewModel.currentLocation.collectAsState()
+    val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    LaunchedEffect(Unit) {
+        if (!permissionState.status.isGranted) {
+            permissionState.launchPermissionRequest()
+        }
+    }
+
+    LaunchedEffect(currentLocation) {
+        currentLocation?.let { location ->
+            cameraPositionState.position = CameraPosition(
+                LatLng(location.latitude, location.longitude),
+                cameraPositionState.position.zoom,
+                cameraPositionState.position.tilt,
+                cameraPositionState.position.bearing
+            )
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AMapComposable(
@@ -32,7 +58,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 .padding(16.dp)
         ) {
             FloatingActionButton(
-                onClick = { viewModel.startLocationTracking() },
+                onClick = { viewModel.getCurrentLocation() },
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Icon(
