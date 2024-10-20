@@ -10,6 +10,9 @@ import okhttp3.OkHttpClient
 import org.greenrobot.eventbus.EventBus
 import timber.log.Timber
 import com.cyclequest.core.AppInitializer
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import com.google.gson.Gson
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -48,5 +51,18 @@ object BasicLibraryModule {
         return AppInitializer(application, timberTree)
     }
 
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://api.example.com/") // 替换为您的API基础URL
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson = Gson()
     // 为其他 Basic Library 组件提供类似的方法
 }
