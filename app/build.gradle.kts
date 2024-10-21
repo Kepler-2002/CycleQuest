@@ -22,6 +22,19 @@ android {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a","x86_64")
         }
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.testLogging {
+                    events("passed", "skipped", "failed", "standardOut", "standardError")
+                    showStandardStreams = true
+                }
+            }
+        }
+    }
+
     
     buildTypes {
         release {
@@ -70,6 +83,7 @@ dependencies {
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("com.google.android.gms:play-services-basement:18.4.0")
+    implementation("androidx.test.ext:junit-ktx:1.2.1")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     
@@ -83,6 +97,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
 
     // 添加 OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -106,6 +122,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.31")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.31")
+
+    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
 }
 
 kapt {
