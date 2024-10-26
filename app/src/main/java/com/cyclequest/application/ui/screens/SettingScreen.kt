@@ -30,75 +30,87 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 
 @Composable
 fun SettingsScreen() {
+    val navController = rememberNavController() // 创建导航控制器
 
-    Column {
-        // Card视图展示用户信息
-        Card(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                //载入默认用户头像 id name--通过创建User类，设置默认用户
-                /*设计 数据库中注册用户的调用
-                       用户注册页
-                */
-                Image(
-                    painter = painterResource(R.drawable.user1_lynn),
-                    contentDescription = null,
+    NavHost(navController = navController, startDestination = "settings") {
+        composable("settings") {
+            // 这里是设置页面的内容
+            Column {
+                // Card视图展示用户信息
+                Card(
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                )
-                // 用户头像 和 信息的间隔
-                Spacer(modifier = Modifier.width(16.dp))
-                // id name 垂直排列
-                Column {
-                    Text(user.id, style = MaterialTheme.typography.titleMedium)
-                    Text(user.name, style = MaterialTheme.typography.bodyMedium)
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        //载入默认用户头像 id name--通过创建User类，设置默认用户
+                        /*设计 数据库中注册用户的调用
+                               用户注册页
+                        */
+                        Image(
+                            painter = painterResource(R.drawable.user1_lynn),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                        )
+                        // 用户头像 和 信息的间隔
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // id name 垂直排列
+                        Column {
+                            Text(user.id, style = MaterialTheme.typography.titleMedium)
+                            Text(user.name, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+
+                // 列表视图显示设置选项
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ListItem(
+                        text = "个人资料",
+                        onClick = {
+                            // 跳转到个人资料页面
+                            navController.navigate("profile")
+                        }
+                    )
+                    //列表项分隔符
+                    DashedDivider()
+
+                    ListItem(
+                        text = "安全隐私",
+                        onClick = { /* Handle click for 安全隐私 */ }
+                    )
+
+                    DashedDivider()
+
+                    ListItem(
+                        text = "通知设置",
+                        onClick = { /* Handle click for 通知设置 */ }
+                    )
+
+                    DashedDivider()
+
+                    ListItem(
+                        text = "帮助与反馈",
+                        onClick = { /* Handle click for 帮助与反馈 */ }
+                    )
                 }
             }
         }
-
-        // 列表视图显示设置选项
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            ListItem(
-                text = "个人资料",
-                onClick = { /* Handle click for 个人资料 */ }
-            )
-            //列表项分隔符
-            DashedDivider()
-
-            ListItem(
-                text = "安全隐私",
-                onClick = { /* Handle click for 安全隐私 */ }
-            )
-
-            DashedDivider()
-
-            ListItem(
-                text = "通知设置",
-                onClick = { /* Handle click for 通知设置 */ }
-            )
-
-            DashedDivider()
-
-            ListItem(
-                text = "帮助与反馈",
-                onClick = { /* Handle click for 帮助与反馈 */ }
-            )
-        }
+        composable("profile") { ProfileScreen() } // 添加个人资料页面的路由
     }
 }
 
