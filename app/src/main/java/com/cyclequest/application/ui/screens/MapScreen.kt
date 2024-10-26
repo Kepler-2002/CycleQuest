@@ -21,6 +21,54 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
 import android.Manifest
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+
+@Composable
+fun PillButton(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val buttonWidth = screenWidth / 2
+
+    Row(
+        modifier = modifier
+            .width(buttonWidth)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(4.dp)
+    ) {
+        options.forEach { option ->
+            Button(
+                onClick = { onOptionSelected(option) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (option == selectedOption) 
+                        MaterialTheme.colorScheme.primary 
+                    else
+                        Color.Transparent,
+                    contentColor = if (option == selectedOption) 
+                        MaterialTheme.colorScheme.onPrimary 
+                    else 
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(36.dp)
+            ) {
+                Text(text = option)
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -28,6 +76,9 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val cameraPositionState = rememberCameraPositionState()
     val currentLocation by viewModel.currentLocation.collectAsState()
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    var selectedOption by remember { mutableStateOf("地图") }
+    val options = listOf("地图", "路线", "探索")
 
     LaunchedEffect(Unit) {
         if (!permissionState.status.isGranted) {
@@ -50,6 +101,16 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
         AMapComposable(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
+        )
+
+        // 添加 PillButton 到顶部并居中对齐
+        PillButton(
+            options = options,
+            selectedOption = selectedOption,
+            onOptionSelected = { selectedOption = it },
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
         )
 
         Column(
