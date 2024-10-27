@@ -1,0 +1,24 @@
+name: Basic Android Check
+
+on:
+  pull_request:
+    branches: [ "master" ]  # 你的项目用的是 master 分支
+
+jobs:
+  basic-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Basic Gradle check
+        run: ./gradlew tasks # 最基础的检查，只是列出可用的任务
