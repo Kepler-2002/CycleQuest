@@ -2,7 +2,7 @@ package com.cyclequest
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import com.cyclequest.core.AppInitializer
+import com.cyclequest.core.initializer.AppInitializer
 import javax.inject.Inject
 
 @HiltAndroidApp
