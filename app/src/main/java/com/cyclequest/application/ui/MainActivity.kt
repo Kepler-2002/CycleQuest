@@ -45,7 +45,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("单车控制", "地图", "论坛", "设置")
-    
+
     // 修改图标列表
     val icons = listOf(
         Icons.Filled.Home,
@@ -79,3 +79,4 @@ fun MainScreen() {
         }
     }
 }
+
