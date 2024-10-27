@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,9 +19,15 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
 import okhttp3.OkHttpClient
 import org.greenrobot.eventbus.EventBus
 import org.slf4j.LoggerFactory
+import com.cyclequest.R
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -48,10 +55,10 @@ fun MainScreen() {
 
     // 修改图标列表
     val icons = listOf(
-        Icons.Filled.Home,
-        Icons.Filled.Place,
-        Icons.Filled.Info,
-        Icons.Filled.Settings
+        painterResource(id = R.drawable.bicycle_icon),
+        painterResource(id = R.drawable.place_icon),
+        painterResource(id = R.drawable.info_icon),
+        painterResource(id = R.drawable.setting_icon),
     )
 
     Scaffold(
@@ -59,7 +66,7 @@ fun MainScreen() {
             NavigationBar {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = { Icon(icons[index], contentDescription = item) },
+                        icon = { Icon(icons[index], contentDescription = item, modifier = Modifier.size(24.dp)) },
                         label = { Text(item) },
                         selected = selectedItem == index,
                         onClick = {

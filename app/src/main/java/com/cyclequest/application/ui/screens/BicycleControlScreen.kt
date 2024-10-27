@@ -31,8 +31,8 @@ fun BicycleControlScreen() {
             .height(50.dp)
         ) {
             Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                // 文本需要同步蓝牙情况
-                Text("蓝牙已连接")
+                // 文本同步蓝牙按钮状态--蓝牙连接功能尚未实现
+                Text(if (isBluetoothConnected) "蓝牙已连接" else "蓝牙断开") // 根据状态显示不同文本
 
                 // 填充空白区域
                 Spacer(modifier = Modifier.weight(1f))
@@ -60,33 +60,47 @@ fun BicycleControlScreen() {
         Card(modifier = Modifier
             .fillMaxWidth()
             .weight(1f)) {
-            Image(
-                painter = painterResource(id = R.drawable.lexus),
-                contentDescription = "车辆图像",
-                modifier = Modifier.fillMaxSize()
-            )
+            // 新增的车辆型号--需要通过设置页面进行输入
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp) // 添加一些内边距
+                        .wrapContentSize(), // 自适应内容大小
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // 添加阴影效果
+                ) {
+                    Text("UCC-Dynamite 2.0", modifier = Modifier.padding(8.dp)) // 显示车辆型号
+                }
+
+                Image(
+                    painter = painterResource(id = R.drawable.bicycle),
+                    contentDescription = "车辆图像",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         // 状态信息区域
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("电量", style = MaterialTheme.typography.bodyLarge)
-                Text("63%", style = MaterialTheme.typography.headlineLarge)
+                Text("骑行里程", style = MaterialTheme.typography.bodyLarge)
+                Text("28 km", style = MaterialTheme.typography.headlineLarge)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("续航", style = MaterialTheme.typography.bodyLarge)
-                Text("284 km", style = MaterialTheme.typography.headlineLarge)
+                //文本要从---获取里程数
+                Text("骑行时长", style = MaterialTheme.typography.bodyLarge)
+                Text("75 min", style = MaterialTheme.typography.headlineLarge)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("温度", style = MaterialTheme.typography.bodyLarge)
-                Text("22°C", style = MaterialTheme.typography.headlineLarge)
+                Text("灯光电量", style = MaterialTheme.typography.bodyLarge)
+                Text("63 %", style = MaterialTheme.typography.headlineLarge)
             }
         }
 
         // 底部操作按钮
         // 16.dp调整按钮padding范围大小
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-            val customLightBlue = Color(0xFF87CEEB) // 例如，浅蓝色
+            val customLightBlue = Color(0xFF87CEEB) // 浅蓝色
+            val customYellow = Color(0xFFFFFF4D) // 灯光的黄色光
             //val customTransparent = Color(0x00000000)  透明色
 
 
@@ -109,37 +123,22 @@ fun BicycleControlScreen() {
                 )
             }
 
-            var isWindowOpen by remember { mutableStateOf(false) }
+            var isLightOpen by remember { mutableStateOf(false) }
             IconButton(
-                onClick = { isWindowOpen = !isWindowOpen },
+                onClick = { isLightOpen = !isLightOpen },
                 modifier = Modifier.size(55.dp)
                     .background(
-                        color = if (isWindowOpen) customLightBlue else Color.Transparent,
+                        color = if (isLightOpen) customYellow else Color.Transparent,
                         shape = CircleShape // 使用圆形背景
                     )
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.window),
-                    contentDescription = "开窗",
+                    painter = painterResource(id = R.drawable.light),
+                    contentDescription = "灯光",
                     modifier = Modifier.size(35.dp)
                 )
             }
 
-            var isTrunkOpen by remember { mutableStateOf(false) }
-            IconButton(
-                onClick = { isTrunkOpen = !isTrunkOpen },
-                modifier = Modifier.size(55.dp)
-                    .background(
-                        color = if (isTrunkOpen) customLightBlue else Color.Transparent,
-                        shape = CircleShape // 使用圆形背景
-                    )
-
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.trunk_icon),
-                    contentDescription = "后备箱",
-                    modifier = Modifier.size(35.dp))
-            }
 
             var isCarFound by remember { mutableStateOf(false) }
             IconButton(
