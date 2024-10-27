@@ -9,11 +9,11 @@ class AppInitializer @Inject constructor(
     private val application: Application,
     private val loggingInitializer: LoggingInitializer,
     private val mapInitializer: MapInitializer,
-    private val serviceInitializer: ServiceInitializer
+    private val databaseInitializer: DatabaseInitializer
 ) {
     fun initialize() {
         loggingInitializer.initialize()
         mapInitializer.initialize(application)
-        serviceInitializer.initialize()
+        databaseInitializer.initialize()
     }
 }

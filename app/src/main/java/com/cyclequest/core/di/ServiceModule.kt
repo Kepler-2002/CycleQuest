@@ -1,5 +1,6 @@
 package com.cyclequest.core.di
 
+import com.cyclequest.service.aliyun.AliyunGeoApiService
 import com.cyclequest.service.backend.BackendService
 import dagger.Module
 import dagger.Provides
@@ -15,5 +16,14 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideBackendService(retrofit: Retrofit) = BackendService(retrofit)
+
+    @Provides
+    @Singleton
+    fun provideAliyunGeoService(
+        @AliyunRetrofit retrofit: Retrofit
+    ): AliyunGeoApiService {
+        return AliyunGeoApiService(retrofit)
+    }
+
 
 }

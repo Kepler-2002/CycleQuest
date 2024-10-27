@@ -1,29 +1,21 @@
 package com.cyclequest.data.mapper
 
-import com.cyclequest.data.remote.UserDto
+import com.cyclequest.data.local.entity.UserEntity
 import com.cyclequest.domain.model.User
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object UserMapper {
-    fun UserDto.toDomain() = User(
-        id = id,
-        name = name,
-        age = age
+@Singleton
+class UserMapper @Inject constructor() {
+    fun toDomain(entity: UserEntity): User = User(
+        id = entity.id,
+        name = entity.name,
+        email = entity.email
     )
 
-    fun User.toDto() = UserDto(
-        id = id,
-        name = name,
-        age = age,
-        avatar = null,
-        email = null,
-        phone = null,
-        createTime = System.currentTimeMillis(),
-        updateTime = System.currentTimeMillis(),
-        status = 0,
-        extra = null
+    fun toLocal(domain: User): UserEntity = UserEntity(
+        id = domain.id,
+        name = domain.name,
+        email = domain.email
     )
-
-    fun List<UserDto>.toDomainList() = map { it.toDomain() }
-
-    fun List<User>.toDtoList() = map { it.toDto() }
 }
