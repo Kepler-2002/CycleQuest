@@ -1,4 +1,4 @@
-package com.cyclequest.core.constants
+package com.cyclequest.core.utils
 
 object AppConstants {
     const val MAP_API_KEY = "your_map_api_key_here"
