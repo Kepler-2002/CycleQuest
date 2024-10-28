@@ -1,6 +1,7 @@
 package com.cyclequest.application.ui.component.setting
 
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +41,11 @@ import androidx.navigation.compose.composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModel
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.TextField
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
@@ -59,7 +66,7 @@ class ProfileViewModel : ViewModel() {
 
 // 列表项组件的定义内容
 // 每一个列表项的点击都不能是@composable，故profileScreen中用if状态值来调用component
-//Icon按钮的点击呢？--可以使用composable
+//rightIcon按钮的点击呢？--可以使用composable
 @Composable
 fun CustomListItem(
     text: String,
@@ -194,4 +201,54 @@ fun InputTextDialog(
             }
         }
     )
+}
+
+
+//创建Dashed Divider方法 用于分隔符的频繁调用
+@Composable
+fun DashedDivider() {
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+    ) {
+        val dashWidth = 10f
+        val dashGap = 5f
+        var x = 0f
+        while (x < size.width) {
+            drawLine(
+                color = Color.Gray,
+                start = Offset(x, 0f),
+                end = Offset(x + dashWidth, 0f),
+                strokeWidth = 1f
+            )
+            x += dashWidth + dashGap
+        }
+    }
+}
+
+// 创建ListItem using Material3
+@Composable
+fun ListItem(text: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(8.dp), // Adjust padding as needed
+        //将方法从elevation改为cardElevation
+        elevation = CardDefaults.cardElevation(4.dp) // Optional elevation
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp), // Padding inside the card
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = text, modifier = Modifier.weight(1f)) // Text on the left
+            Icon(
+                imageVector = Icons.Filled.ArrowForward, // Use your desired arrow icon
+                contentDescription = null // Provide a description for accessibility
+            )
+        }
+    }
 }

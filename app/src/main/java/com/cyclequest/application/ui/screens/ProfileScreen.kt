@@ -56,6 +56,7 @@ import com.cyclequest.application.ui.component.setting.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cyclequest.application.ui.component.setting.GenderSelectionDialog
 import com.cyclequest.application.ui.component.setting.InputTextDialog
+import com.cyclequest.application.ui.component.setting.DashedDivider
 
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
