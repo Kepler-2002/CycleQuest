@@ -64,6 +64,12 @@ android {
 }
 
 dependencies {
+    val roomVersion = "2.6.1"
+    
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
@@ -84,6 +90,10 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("com.google.android.gms:play-services-basement:18.4.0")
     implementation("androidx.test.ext:junit-ktx:1.2.1")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
+    implementation("androidx.databinding:adapters:3.2.0-alpha11")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     
@@ -123,7 +133,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.5.31")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.31")
 
-    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.28.0")
 }
 
 kapt {
