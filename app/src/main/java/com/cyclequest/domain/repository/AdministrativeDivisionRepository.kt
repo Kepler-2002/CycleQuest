@@ -1,7 +1,7 @@
-package com.cyclequest.data.repository
+package com.cyclequest.domain.repository
 
 import com.cyclequest.service.aliyun.AliyunGeoApiService
-import com.cyclequest.data.model.AdministrativeDivision
+import com.cyclequest.domain.model.AdministrativeDivision
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.amap.api.maps2d.model.LatLng

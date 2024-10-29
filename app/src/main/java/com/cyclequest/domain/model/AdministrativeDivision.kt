@@ -1,4 +1,4 @@
-package com.cyclequest.data.model
+package com.cyclequest.domain.model
 
 import com.amap.api.maps2d.model.LatLng
 

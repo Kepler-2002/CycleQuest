@@ -33,7 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-
+import com.cyclequest.application.ui.component.setting.ListItem
+import com.cyclequest.application.ui.component.setting.DashedDivider
 @Composable
 fun SettingsScreen() {
     val navController = rememberNavController() // 创建导航控制器
@@ -120,60 +121,3 @@ data class User (val id: String, val name: String) {
 }
 val user = User("001001001", "Lynn" )
 
-//创建Dashed Divider方法 用于分隔符的频繁调用
-@Composable
-fun DashedDivider() {
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-    ) {
-        val dashWidth = 10f
-        val dashGap = 5f
-        var x = 0f
-        while (x < size.width) {
-            drawLine(
-                color = Color.Gray,
-                start = Offset(x, 0f),
-                end = Offset(x + dashWidth, 0f),
-                strokeWidth = 1f
-            )
-            x += dashWidth + dashGap
-        }
-    }
-}
-
-// 创建ListItem using Material3
-@Composable
-fun ListItem(text: String, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(8.dp), // Adjust padding as needed
-        //将方法从elevation改为cardElevation
-        elevation = CardDefaults.cardElevation(4.dp) // Optional elevation
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp), // Padding inside the card
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = text, modifier = Modifier.weight(1f)) // Text on the left
-            Icon(
-                imageVector = Icons.Filled.ArrowForward, // Use your desired arrow icon
-                contentDescription = null // Provide a description for accessibility
-            )
-        }
-    }
-}
-
-// 设置页；使用了material3库设计规范
-// 所有跳转用dialog显示对话框来模拟
-// Column_Part1：左上角图标，跳转论坛私信，右上角图标，跳转设置页面
-// Column_Part2：Card视图，显示用户信息【头像 id 状态】
-// Column_Part3：显示button[收藏路线]
-// additional：显示收藏路线的名称，点击可以跳转
-// 单纯的设置页，列表视图。点击button应该可以打开dialog
-// 创建用户需要存储在数据库中，这里先使用一个全局变量来模拟
