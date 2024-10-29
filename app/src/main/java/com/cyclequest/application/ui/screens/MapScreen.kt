@@ -25,50 +25,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import com.cyclequest.application.ui.components.map.Polygon
 
-@Composable
-fun PillButton(
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val buttonWidth = screenWidth / 2
 
-    Row(
-        modifier = modifier
-            .width(buttonWidth)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(4.dp)
-    ) {
-        options.forEach { option ->
-            Button(
-                onClick = { onOptionSelected(option) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (option == selectedOption) 
-                        MaterialTheme.colorScheme.primary 
-                    else
-                        Color.Transparent,
-                    contentColor = if (option == selectedOption) 
-                        MaterialTheme.colorScheme.onPrimary 
-                    else 
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(36.dp)
-            ) {
-                Text(text = option)
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -76,6 +35,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val cameraPositionState = rememberCameraPositionState()
     val currentLocation by viewModel.currentLocation.collectAsState()
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    val boundaryPoints by viewModel.boundaryPoints.collectAsState()
 
     var selectedOption by remember { mutableStateOf("地图") }
     val options = listOf("地图", "路线", "探索")
@@ -97,11 +57,25 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.loadAdministrativeBoundary("810016") // 这里使用沙田区的编码
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         AMapComposable(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
-        )
+        ) {
+            // 添加多边形覆盖物
+            if (boundaryPoints.isNotEmpty()) {
+                Polygon(
+                    points = boundaryPoints,
+                    strokeWidth = 2f,
+                    strokeColor = Color.Black,
+                    fillColor = Color(0x33FF0000) // 半透明红色
+                )
+            }
+        }
 
         // 添加 PillButton 到顶部并居中对齐
         PillButton(

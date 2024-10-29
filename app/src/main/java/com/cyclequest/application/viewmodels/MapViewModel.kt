@@ -21,7 +21,8 @@ import timber.log.Timber
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val locationService: LocationService,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val administrativeDivisionRepository: AdministrativeDivisionRepository
 ) : ViewModel() {
 
     private val _currentLocation = MutableStateFlow<AMapLocation?>(null)
@@ -35,6 +36,9 @@ class MapViewModel @Inject constructor(
 
     private val _forceUpdateCamera = MutableStateFlow(0)
     val forceUpdateCamera: StateFlow<Int> = _forceUpdateCamera
+
+    private val _boundaryPoints = MutableStateFlow<List<LatLng>>(emptyList())
+    val boundaryPoints: StateFlow<List<LatLng>> = _boundaryPoints.asStateFlow()
 
     init {
         checkLocationPermission()
@@ -66,6 +70,18 @@ class MapViewModel @Inject constructor(
             Timber.d("MapViewModel: 缺少定位权限")
         }
         _forceUpdateCamera.value++
+    }
+
+    fun loadAdministrativeBoundary(divisionCode: String) {
+        viewModelScope.launch {
+            administrativeDivisionRepository.getAdministrativeDivisionBoundary(divisionCode)
+                .onSuccess { division ->
+                    _boundaryPoints.value = division.boundaryPoints
+                }
+                .onFailure {
+                    Timber.e(it, "加载行政区划边界失败")
+                }
+        }
     }
 
     override fun onCleared() {
