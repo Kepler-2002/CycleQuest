@@ -25,7 +25,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import com.cyclequest.application.ui.components.map.Polygon
+import com.cyclequest.application.ui.component.map.PillButton
+import com.cyclequest.application.ui.component.map.Polygon
 
 
 
@@ -65,17 +66,19 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
         AMapComposable(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
-        ) {
-            // 添加多边形覆盖物
-            if (boundaryPoints.isNotEmpty()) {
-                Polygon(
-                    points = boundaryPoints,
-                    strokeWidth = 2f,
-                    strokeColor = Color.Black,
-                    fillColor = Color(0x33FF0000) // 半透明红色
-                )
-            }
-        }
+        )
+//      TODO: The commented codes caused error, fix them
+//        {
+//            // 添加多边形覆盖物
+//            if (boundaryPoints.isNotEmpty()) {
+//                Polygon(
+//                    points = boundaryPoints,
+//                    strokeWidth = 2f,
+//                    strokeColor = Color.Black,
+//                    fillColor = Color(0x33FF0000) // 半透明红色
+//                )
+//            }
+//        }
 
         // 添加 PillButton 到顶部并居中对齐
         PillButton(
