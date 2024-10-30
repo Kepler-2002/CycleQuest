@@ -12,7 +12,8 @@ import com.cyclequest.data.local.entity.UserEntity
         UserEntity::class
         // 其他实体
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(DatabaseConverters::class)
 abstract class AppDatabase : RoomDatabase() {
