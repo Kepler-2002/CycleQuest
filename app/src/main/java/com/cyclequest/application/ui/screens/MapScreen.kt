@@ -67,20 +67,12 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         )
-//      TODO: The commented codes caused error, fix them
-//        {
-//            // 添加多边形覆盖物
-//            if (boundaryPoints.isNotEmpty()) {
-//                Polygon(
-//                    points = boundaryPoints,
-//                    strokeWidth = 2f,
-//                    strokeColor = Color.Black,
-//                    fillColor = Color(0x33FF0000) // 半透明红色
-//                )
-//            }
-//        }
 
-        // 添加 PillButton 到顶部并居中对齐
+        when (selectedOption) {
+            "路线" -> RouteOverlay()
+            "探索" -> ExploreOverlay(boundaryPoints)
+        }
+
         PillButton(
             options = options,
             selectedOption = selectedOption,
@@ -106,7 +98,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
             }
 
             FloatingActionButton(
-                onClick = { 
+                onClick = {
                     val newZoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
                     cameraPositionState.position = CameraPosition(
                         cameraPositionState.position.target,
@@ -124,7 +116,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
             }
 
             FloatingActionButton(
-                onClick = { 
+                onClick = {
                     val newZoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
                     cameraPositionState.position = CameraPosition(
                         cameraPositionState.position.target,
@@ -140,5 +132,37 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun RouteOverlay() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0x80000000)) // 半透明黑色背景
+    ) {
+        Text(
+            text = "路线覆盖层",
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun ExploreOverlay(boundaryPoints: List<LatLng>) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0x80000000)) // 半透明黑色背景
+    ) {
+        // 使用 Polygon 绘制边界
+        Polygon(
+            points = boundaryPoints,
+            fillColor = Color(0x8000FFFF), // 半透明蓝色
+            strokeColor = Color.Blue,
+            strokeWidth = 2f
+        )
     }
 }
