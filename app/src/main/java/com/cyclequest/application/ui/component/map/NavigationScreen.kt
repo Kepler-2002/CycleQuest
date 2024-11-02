@@ -23,7 +23,7 @@ import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
 
 @Composable
-fun AMapComposable(
+fun NavigationScreen(
     modifier: Modifier = Modifier,
     cameraPositionState: CameraPositionState = rememberCameraPositionState()
 ) {
@@ -41,7 +41,7 @@ fun AMapComposable(
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
     val context = LocalContext.current
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val mapView = remember { MapView(context) }
 
     DisposableEffect(lifecycleOwner) {
@@ -59,7 +59,7 @@ fun rememberMapViewWithLifecycle(): MapView {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-    
+
     return mapView
 }
 
@@ -73,7 +73,7 @@ fun rememberCameraPositionState(
 
 class CameraPositionState(initialPosition: CameraPosition) {
     var position by mutableStateOf(initialPosition)
-    
+
     companion object {
         val Saver: Saver<CameraPositionState, *> = listSaver(
             save = { listOf(it.position.target.latitude, it.position.target.longitude, it.position.zoom, it.position.tilt, it.position.bearing) },

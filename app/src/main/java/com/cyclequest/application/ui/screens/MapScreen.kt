@@ -11,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import com.cyclequest.application.ui.components.map.AMapComposable
+import com.cyclequest.application.ui.components.map.NavigationScreen
 import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
 import com.amap.api.maps2d.model.CameraPosition
@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import com.cyclequest.application.ui.component.map.PillButton
 import com.cyclequest.application.ui.component.map.Polygon
-
-
+import com.cyclequest.application.ui.component.map.RouteOverlay
+import com.cyclequest.application.ui.component.map.ExploreOverlay
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -59,11 +59,11 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadAdministrativeBoundary("810016") // 这里使用沙田区的编码
+        viewModel.loadAdministrativeBoundary("110000") // 这里使用北京市的编码
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AMapComposable(
+        NavigationScreen(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         )
@@ -132,37 +132,5 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun RouteOverlay() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0x80000000)) // 半透明黑色背景
-    ) {
-        Text(
-            text = "路线覆盖层",
-            color = Color.White,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
-
-@Composable
-fun ExploreOverlay(boundaryPoints: List<LatLng>) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0x80000000)) // 半透明黑色背景
-    ) {
-        // 使用 Polygon 绘制边界
-        Polygon(
-            points = boundaryPoints,
-            fillColor = Color(0x8000FFFF), // 半透明蓝色
-            strokeColor = Color.Blue,
-            strokeWidth = 2f
-        )
     }
 }
