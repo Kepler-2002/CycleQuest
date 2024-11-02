@@ -134,6 +134,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.31")
 
     implementation("com.google.accompanist:accompanist-permissions:0.28.0")
+
+    // 添加 OkHttp 日志拦截器
+    testImplementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
+    // 添加 Retrofit Scalars 转换器
+    testImplementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 }
 
 kapt {
