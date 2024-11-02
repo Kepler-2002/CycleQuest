@@ -23,13 +23,24 @@ class AdministrativeDivisionRepository @Inject constructor(
         val jsonObject = gson.fromJson(jsonString, JsonObject::class.java)
         val features = jsonObject.getAsJsonArray("features")
         val geometry = features[0].asJsonObject.getAsJsonObject("geometry")
-        val coordinates = geometry.getAsJsonArray("coordinates")[0].asJsonArray
-
-        val boundaryPoints = coordinates.map { coordinate ->
-            val point = coordinate.asJsonArray
-            LatLng(point[1].asDouble, point[0].asDouble)
+        
+        val boundaryPoints = mutableListOf<LatLng>()
+        
+        // 处理 MultiPolygon 类型
+        val polygons = geometry.getAsJsonArray("coordinates")
+        // 获取第一个多边形（主要边界）
+        val mainPolygon = polygons[0].asJsonArray
+        // 获取多边形的外环
+        val outerRing = mainPolygon[0].asJsonArray
+        
+        // 遍历所有坐标点
+        for (i in 0 until outerRing.size()) {
+            val point = outerRing[i].asJsonArray
+            val lng = point[0].asDouble
+            val lat = point[1].asDouble
+            boundaryPoints.add(LatLng(lat, lng))
         }
-
+        
         return AdministrativeDivision(boundaryPoints)
     }
 }
