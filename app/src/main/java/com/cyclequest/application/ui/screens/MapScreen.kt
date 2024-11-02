@@ -11,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import com.cyclequest.application.ui.components.map.NavigationScreen
+import com.cyclequest.application.ui.components.map.MapPage
 import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
 import com.amap.api.maps2d.model.CameraPosition
@@ -29,6 +29,7 @@ import com.cyclequest.application.ui.component.map.PillButton
 import com.cyclequest.application.ui.component.map.Polygon
 import com.cyclequest.application.ui.component.map.RouteOverlay
 import com.cyclequest.application.ui.component.map.ExploreOverlay
+import com.cyclequest.application.ui.components.map.MapPage
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -63,11 +64,14 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        NavigationScreen(
+
+//        The AMap
+        MapPage(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
         )
 
+//      PillButton
         when (selectedOption) {
             "路线" -> RouteOverlay()
             "探索" -> ExploreOverlay(boundaryPoints)
@@ -82,6 +86,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 .padding(top = 16.dp)
         )
 
+//      Other Buttons
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)

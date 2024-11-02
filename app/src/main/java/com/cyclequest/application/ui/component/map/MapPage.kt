@@ -1,6 +1,5 @@
 package com.cyclequest.application.ui.components.map
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -16,19 +15,19 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.amap.api.maps2d.AMap
+
 import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.MapView
 import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
 
 @Composable
-fun NavigationScreen(
+fun MapPage(
     modifier: Modifier = Modifier,
     cameraPositionState: CameraPositionState = rememberCameraPositionState()
-) {
+){
     val mapView = rememberMapViewWithLifecycle()
-    
+
     AndroidView(
         modifier = modifier,
         factory = { mapView },
@@ -37,6 +36,22 @@ fun NavigationScreen(
         }
     )
 }
+
+//@Composable
+//fun NavigationScreen(
+//    modifier: Modifier = Modifier,
+//    cameraPositionState: CameraPositionState = rememberCameraPositionState()
+//) {
+//    val mapView = rememberMapViewWithLifecycle()
+//
+//    AndroidView(
+//        modifier = modifier,
+//        factory = { mapView },
+//        update = { view ->
+//            view.map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPositionState.position))
+//        }
+//    )
+//}
 
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
@@ -66,7 +81,9 @@ fun rememberMapViewWithLifecycle(): MapView {
 @Composable
 fun rememberCameraPositionState(
     key: String? = null,
-    initialPosition: CameraPosition = CameraPosition(LatLng(39.90923, 116.397428), 10f, 0f, 0f)
+    // 可以设置为读取上一次退出时保存的最后位置
+    // 当前默认香港九零城区中心
+    initialPosition: CameraPosition = CameraPosition(LatLng(22.31251, 114.1928467), 10f, 0f, 0f)
 ): CameraPositionState = rememberSaveable(key = key, saver = CameraPositionState.Saver) {
     CameraPositionState(initialPosition)
 }
