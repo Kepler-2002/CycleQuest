@@ -27,8 +27,9 @@ import com.amap.api.maps2d.model.PolylineOptions
 @Composable
 fun MapPage(
     modifier: Modifier = Modifier,
-    cameraPositionState: CameraPositionState = rememberCameraPositionState()
-){
+    cameraPositionState: CameraPositionState = rememberCameraPositionState(),
+    onMapReady: (AMap) -> Unit
+) {
     val mapView = rememberMapViewWithLifecycle()
 
     AndroidView(
@@ -36,6 +37,7 @@ fun MapPage(
         factory = { mapView },
         update = { view ->
             view.map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPositionState.position))
+            onMapReady(view.map) // 地图准备好时调用回调
         }
     )
 }

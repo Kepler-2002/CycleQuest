@@ -25,10 +25,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import com.amap.api.maps2d.AMap
 import com.cyclequest.application.ui.component.map.PillButton
 import com.cyclequest.application.ui.component.map.Polygon
-import com.cyclequest.application.ui.component.map.RouteOverlay
-import com.cyclequest.application.ui.component.map.ExploreOverlay
+import com.cyclequest.application.ui.component.map.RoutingLayer
+import com.cyclequest.application.ui.component.map.DiscoveryLayer
 import com.cyclequest.application.ui.components.map.MapPage
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -64,17 +65,28 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        var aMapInstance by remember { mutableStateOf<AMap?>(null) }
 
-//        The AMap
         MapPage(
             modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            onMapReady = { aMap ->
+                aMapInstance = aMap
+            }
         )
 
-//      PillButton
-        when (selectedOption) {
-            "路线" -> RouteOverlay()
-            "探索" -> ExploreOverlay(boundaryPoints)
+        aMapInstance?.let { aMap ->
+            when (selectedOption) {
+                "地图" -> {
+                    aMap.clear() // 清除所有图层
+                }
+                "路线" -> {
+                    RoutingLayer(aMap)
+                }
+                "探索" -> {
+                    DiscoveryLayer(aMap)
+                }
+            }
         }
 
         PillButton(
@@ -86,7 +98,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 .padding(top = 16.dp)
         )
 
-//      Other Buttons
+        // Other Buttons
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -138,4 +150,14 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
             }
         }
     }
+}
+
+@Composable
+fun RoutingLayer(aMap: AMap) {
+    // 实现 RoutingLayer 的逻辑
+}
+
+@Composable
+fun DiscoveryLayer(aMap: AMap) {
+    // 实现 DiscoveryLayer 的逻辑
 }

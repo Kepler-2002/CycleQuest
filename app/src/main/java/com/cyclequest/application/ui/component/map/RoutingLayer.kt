@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun RouteOverlay() {
+fun RoutingLayer() {
     Box(
         modifier = Modifier
             .fillMaxSize()
