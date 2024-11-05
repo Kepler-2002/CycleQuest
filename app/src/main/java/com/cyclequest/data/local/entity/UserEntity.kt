@@ -19,12 +19,12 @@ data class UserEntity(
     val totalRides: Int,
     val totalDistance: Float,
     val totalRideTime: Long,
+    @ColumnInfo(name = "last_login_at")
+    val lastLoginAt: Long?,
     @ColumnInfo(name = "sync_status")
     override val syncStatus: SyncStatus = SyncStatus.PENDING,
     @ColumnInfo(name = "created_at")
     override val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "updated_at")
-    override val updatedAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "last_login_at")
-    val lastLoginAt: Long?
+    override val updatedAt: Long = System.currentTimeMillis()
 ) : BaseEntity

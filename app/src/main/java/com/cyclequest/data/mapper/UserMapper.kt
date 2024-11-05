@@ -9,13 +9,33 @@ import javax.inject.Singleton
 class UserMapper @Inject constructor() {
     fun toDomain(entity: UserEntity): User = User(
         id = entity.id,
-        name = entity.name,
-        email = entity.email
+        username = entity.username,
+        email = entity.email,
+        phoneNumber = entity.phoneNumber,
+        password = entity.password,
+        avatarUrl = entity.avatarUrl,
+        status = entity.status,
+        totalRides = entity.totalRides,
+        totalDistance = entity.totalDistance,
+        totalRideTime = entity.totalRideTime,
+        lastLoginAt = entity.lastLoginAt,
+        createdAt = entity.createdAt,
+        updatedAt = entity.updatedAt
     )
 
     fun toLocal(domain: User): UserEntity = UserEntity(
         id = domain.id,
-        name = domain.name,
-        email = domain.email
+        username = domain.username,
+        email = domain.email,
+        phoneNumber = domain.phoneNumber,
+        password = domain.password,
+        avatarUrl = domain.avatarUrl,
+        status = domain.status,
+        totalRides = domain.totalRides,
+        totalDistance = domain.totalDistance,
+        totalRideTime = domain.totalRideTime,
+        lastLoginAt = domain.lastLoginAt,
+        createdAt = domain.createdAt,
+        updatedAt = domain.updatedAt
     )
 }

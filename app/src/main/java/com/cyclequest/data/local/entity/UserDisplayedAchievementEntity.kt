@@ -2,6 +2,7 @@ package com.cyclequest.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -19,6 +20,10 @@ import androidx.room.PrimaryKey
             childColumns = ["achievementId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["userId"]),
+        Index(value = ["achievementId"])
     ]
 )
 data class UserDisplayedAchievementEntity(

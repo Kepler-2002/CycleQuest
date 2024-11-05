@@ -49,7 +49,7 @@ class UserSyncWorker @Inject constructor(
                 }
             }
             is ApiResult.Error -> {
-                throw result.error.toThrowable()
+                // TODO
             }
             is ApiResult.Loading -> { /* 忽略加载状态 */ }
         }

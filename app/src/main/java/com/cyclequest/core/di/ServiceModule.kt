@@ -3,8 +3,7 @@ package com.cyclequest.core.di
 import com.cyclequest.core.network.NetworkConfig
 import com.cyclequest.service.aliyun.AliyunGeoApiService
 import com.cyclequest.service.backend.BackendService
-import com.cyclequest.data.remote.api.UserApi
-import com.cyclequest.data.remote.api.UserApiImpl
+import com.cyclequest.data.sync.Apis.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,15 +32,15 @@ object ServiceModule {
             .build()
     }
 
-    @Provides
-    @Singleton
-    fun provideBackendService(
-        @BackendRetrofit retrofit: Retrofit,
-        networkConfig: NetworkConfig,
-        errorHandler: ErrorHandler
-    ): BackendService {
-        return BackendService(retrofit, networkConfig, errorHandler)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideBackendService(
+//        @BackendRetrofit retrofit: Retrofit,
+//        networkConfig: NetworkConfig,
+//        errorHandler: ErrorHandler
+//    ): BackendService {
+//        return BackendService(retrofit, networkConfig, errorHandler)
+//    }
 
     @Provides
     @Singleton
@@ -51,9 +50,9 @@ object ServiceModule {
         return AliyunGeoApiService(retrofit)
     }
 
-    @Provides
-    @Singleton
-    fun provideUserApi(backendService: BackendService): UserApi {
-        return UserApiImpl(backendService)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideUserApi(backendService: BackendService): UserApi {
+//        return UserApi(backendService)
+//    }
 }

@@ -23,7 +23,8 @@ import com.cyclequest.data.local.entity.UserDisplayedAchievementEntity
         UserAchievementEntity::class,
         UserDisplayedAchievementEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(DatabaseConverters::class)
 abstract class AppDatabase : RoomDatabase() {
