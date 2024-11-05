@@ -19,7 +19,14 @@ import com.cyclequest.data.local.DatabaseConverters
         PostTagEntity::class,
         PostLikeEntity::class,
         CommentEntity::class,
-        CommentLikeEntity::class
+        CommentLikeEntity::class,
+        BicycleEntity::class,
+        BicycleStatusLogEntity::class,
+        RideRecordEntity::class,
+        RideTrackingPointEntity::class,
+        RideRegionStatsEntity::class,
+        UserExploredRegionEntity::class,
+        PlannedRouteEntity::class,
     ],
     version = 1,
     exportSchema = false
@@ -37,6 +44,13 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun postLikeDao(): PostLikeDao
     abstract fun commentDao(): CommentDao
     abstract fun commentLikeDao(): CommentLikeDao
+    abstract fun bicycleDao(): BicycleDao
+    abstract fun bicycleStatusLogDao(): BicycleStatusLogDao
+    abstract fun rideRecordDao(): RideRecordDao
+    abstract fun rideTrackingPointDao(): RideTrackingPointDao
+    abstract fun rideRegionStatsDao(): RideRegionStatsDao
+    abstract fun userExploredRegionDao(): UserExploredRegionDao
+    abstract fun plannedRouteDao(): PlannedRouteDao
 }
 
 
