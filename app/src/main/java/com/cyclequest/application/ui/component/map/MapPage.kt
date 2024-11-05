@@ -32,12 +32,16 @@ fun MapPage(
 ) {
     val mapView = rememberMapViewWithLifecycle()
 
+    DisposableEffect(mapView) {
+        onMapReady(mapView.map)
+        onDispose { }
+    }
+
     AndroidView(
         modifier = modifier,
         factory = { mapView },
         update = { view ->
             view.map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPositionState.position))
-            onMapReady(view.map) // 地图准备好时调用回调
         }
     )
 }

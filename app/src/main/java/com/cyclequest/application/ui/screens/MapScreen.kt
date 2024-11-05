@@ -35,10 +35,11 @@ import com.cyclequest.application.ui.components.map.MapPage
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
+    val mapMode by viewModel.mapMode.collectAsState()
+    val boundaryPoints by viewModel.boundaryPoints.collectAsState()
     val cameraPositionState = rememberCameraPositionState()
     val currentLocation by viewModel.currentLocation.collectAsState()
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val boundaryPoints by viewModel.boundaryPoints.collectAsState()
 
     var selectedOption by remember { mutableStateOf("地图") }
     val options = listOf("地图", "路线", "探索")
@@ -71,97 +72,87 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     Box(modifier = Modifier.fillMaxSize()) {
         var aMapInstance by remember { mutableStateOf<AMap?>(null) }
 
-        MapPage(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            onMapReady = { aMap ->
-                aMapInstance = aMap
-            }
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            MapPage(
+                modifier = Modifier.fillMaxSize(),
+                onMapReady = { aMap ->
+                    aMapInstance = aMap
+                }
+            )
 
-        aMapInstance?.let { aMap ->
-    when (selectedOption) {
-        "地图" -> {
-            aMap.clear() // 清除所有图层
-        }
-        "路线" -> {
-            RoutingLayer(aMap)
-        }
-        "探索" -> {
-            DiscoveryLayer(aMap, boundaryPoints) // 传入 boundaryPoints
-        }
-    }
-}
-
-        PillButton(
-            options = options,
-            selectedOption = selectedOption,
-            onOptionSelected = { selectedOption = it },
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 16.dp)
-        )
-
-        // Other Buttons
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            FloatingActionButton(
-                onClick = { viewModel.getCurrentLocation() },
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "定位"
-                )
-            }
-
-            FloatingActionButton(
-                onClick = {
-                    val newZoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
-                    cameraPositionState.position = CameraPosition(
-                        cameraPositionState.position.target,
-                        newZoom,
-                        cameraPositionState.position.tilt,
-                        cameraPositionState.position.bearing
+            // 根据不同模式显示不同图层
+            aMapInstance?.let { aMap ->
+                when (mapMode) {
+                    "探索" -> DiscoveryLayer(
+                        aMap = aMap,
+                        boundaryPoints = boundaryPoints
                     )
-                },
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "放大"
-                )
+
+                    "路线" -> RoutingLayer()
+                }
             }
 
-            FloatingActionButton(
-                onClick = {
-                    val newZoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
-                    cameraPositionState.position = CameraPosition(
-                        cameraPositionState.position.target,
-                        newZoom,
-                        cameraPositionState.position.tilt,
-                        cameraPositionState.position.bearing
+            // PillButton 放在顶部
+            PillButton(
+                options = listOf("地图", "路线", "探索"),
+                selectedOption = mapMode,
+                onOptionSelected = { viewModel.setMapMode(it) },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+            )
+
+            // Other Buttons
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+            ) {
+                FloatingActionButton(
+                    onClick = { viewModel.getCurrentLocation() },
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "定位"
                     )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "缩小"
-                )
+
+                FloatingActionButton(
+                    onClick = {
+                        val newZoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
+                        cameraPositionState.position = CameraPosition(
+                            cameraPositionState.position.target,
+                            newZoom,
+                            cameraPositionState.position.tilt,
+                            cameraPositionState.position.bearing
+                        )
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "放大"
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = {
+                        val newZoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
+                        cameraPositionState.position = CameraPosition(
+                            cameraPositionState.position.target,
+                            newZoom,
+                            cameraPositionState.position.tilt,
+                            cameraPositionState.position.bearing
+                        )
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "缩小"
+                    )
+                }
             }
         }
     }
-}
-
-@Composable
-fun RoutingLayer(aMap: AMap) {
-    // 实现 RoutingLayer 的逻辑
-}
-
-@Composable
-fun DiscoveryLayer(aMap: AMap) {
-    // 实现 DiscoveryLayer 的逻辑
 }

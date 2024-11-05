@@ -4,6 +4,7 @@ import com.cyclequest.core.di.AliyunRetrofit
 import retrofit2.Retrofit
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.gson.JsonObject
 
 @Singleton
 class AliyunGeoApiService @Inject constructor(
@@ -11,7 +12,7 @@ class AliyunGeoApiService @Inject constructor(
 ) {
     private val api = retrofit.create(AliyunGeoApi::class.java)
 
-    suspend fun getAreaBoundary(areaCode: String, useGeoJson: Boolean = false): Result<String> {
+    suspend fun getAreaBoundary(areaCode: String, useGeoJson: Boolean = false): Result<JsonObject> {
         return try {
             val response = if (useGeoJson) {
                 api.getAreaBoundaryGeoJson(areaCode)

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import android.util.Log
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
@@ -42,6 +42,9 @@ class MapViewModel @Inject constructor(
     private val _boundaryPoints = MutableStateFlow<List<LatLng>>(emptyList())
     val boundaryPoints: StateFlow<List<LatLng>> = _boundaryPoints.asStateFlow()
 
+    private val _mapMode = MutableStateFlow("地图")
+    val mapMode: StateFlow<String> = _mapMode.asStateFlow()
+
     init {
         checkLocationPermission()
     }
@@ -55,9 +58,9 @@ class MapViewModel @Inject constructor(
 
     fun getCurrentLocation() {
         if (checkLocationPermission()) {
-            Timber.d("MapViewModel: 开始获取当前位置")
+            Log.d("MapViewModel", "开始获取当前位置")
             locationService.getCurrentLocation { location ->
-                Timber.d("MapViewModel: 收到位置更新 - $location")
+                Log.d("MapViewModel", "收到位置更新 - $location")
                 location?.let {
                     _currentLocation.value = it
                     _cameraPosition.value = CameraPosition(
@@ -69,20 +72,29 @@ class MapViewModel @Inject constructor(
                 }
             }
         } else {
-            Timber.d("MapViewModel: 缺少定位权限")
+            Log.d("MapViewModel", "缺少定位权限")
         }
         _forceUpdateCamera.value++
     }
 
     fun loadAdministrativeBoundary(divisionCode: String) {
         viewModelScope.launch {
+            Log.d("MapViewModel", "开始加载行政区划边界: $divisionCode")
             administrativeDivisionRepository.getAdministrativeDivisionBoundary(divisionCode)
                 .onSuccess { division ->
+                    Log.d("MapViewModel", "成功获取边界数据，点数量: ${division.boundaryPoints.size}")
                     _boundaryPoints.value = division.boundaryPoints
                 }
-                .onFailure {
-                    Timber.e(it, "加载行政区划边界失败")
+                .onFailure { error ->
+                    Log.e("MapViewModel", "加载行政区划边界失败", error)
                 }
+        }
+    }
+
+    fun setMapMode(mode: String) {
+        _mapMode.value = mode
+        if (mode == "探索") {
+            loadAdministrativeBoundary("150000")  // 切换到探索模式时加载边界
         }
     }
 
