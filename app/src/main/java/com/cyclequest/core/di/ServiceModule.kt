@@ -3,11 +3,15 @@ package com.cyclequest.core.di
 import com.cyclequest.core.network.NetworkConfig
 import com.cyclequest.service.aliyun.AliyunGeoApiService
 import com.cyclequest.service.backend.BackendService
+import com.cyclequest.data.sync.Apis.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import org.xml.sax.ErrorHandler
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 // core/di/NetworkModule.kt
@@ -16,7 +20,27 @@ import javax.inject.Singleton
 object ServiceModule {
     @Provides
     @Singleton
-    fun provideBackendService(retrofit: Retrofit, networkConfig: NetworkConfig) = BackendService(retrofit, networkConfig)
+    @BackendRetrofit
+    fun provideBackendRetrofit(
+        @AppOkHttpClient okHttpClient: OkHttpClient,
+        networkConfig: NetworkConfig
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(networkConfig.baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+//    @Provides
+//    @Singleton
+//    fun provideBackendService(
+//        @BackendRetrofit retrofit: Retrofit,
+//        networkConfig: NetworkConfig,
+//        errorHandler: ErrorHandler
+//    ): BackendService {
+//        return BackendService(retrofit, networkConfig, errorHandler)
+//    }
 
     @Provides
     @Singleton
@@ -26,5 +50,9 @@ object ServiceModule {
         return AliyunGeoApiService(retrofit)
     }
 
-
+//    @Provides
+//    @Singleton
+//    fun provideUserApi(backendService: BackendService): UserApi {
+//        return UserApi(backendService)
+//    }
 }
