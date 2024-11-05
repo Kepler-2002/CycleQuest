@@ -1,5 +1,6 @@
 package com.cyclequest.domain.repository
 
+import com.cyclequest.core.database.sync.DatabaseSync
 import com.cyclequest.core.database.sync.SyncStatus
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.mapper.UserMapper
@@ -14,42 +15,36 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val userMapper: UserMapper,
-    private val syncManager: SyncManager
+    private val syncManager: SyncManager,
+    private val databaseSync: DatabaseSync
 ) {
-    // 获取所有用户，返回 Flow
     fun getUsers(): Flow<List<User>> {
-        return userDao.getAllUsersFlow().map { users ->
-            users.map { userMapper.toDomain(it) }
-        }
+        return userDao.getAllUsersFlow()
+            .map { users -> users.map(userMapper::toDomain) }
     }
 
-    // 获取单个用户
     suspend fun getUser(id: String): User? {
+        if (databaseSync.shouldSync(SyncType.User)) {
+            syncManager.startSync()
+        }
         return userDao.getUserById(id)?.let { userMapper.toDomain(it) }
     }
 
-    // 强制刷新用户数据
-    suspend fun refreshUsers() {
-        syncManager.startSync()
-    }
-
-    // 更新用户信息
     suspend fun updateUser(user: User) {
         val localUser = userMapper.toLocal(user).copy(syncStatus = SyncStatus.PENDING)
         userDao.updateUser(localUser)
         syncManager.startSync()
     }
 
-    // 删除用户
-    suspend fun deleteUser(userId: String) {
-        userDao.deleteUser(userId)
+    suspend fun refreshUsers() {
         syncManager.startSync()
     }
 
-    // 创建新用户
-    suspend fun createUser(user: User) {
-        val localUser = userMapper.toLocal(user).copy(syncStatus = SyncStatus.PENDING)
-        userDao.insertUser(localUser)
-        syncManager.startSync()
+    fun UserRegister(){
+        //1. 从云端 同步User （UserID）
+        // 2. 从UserDao里面找有没有已经注册过的UserID
+
+        // 3. 如果不重复，就写UserDao
+        // 4. 同步云端
     }
 }
