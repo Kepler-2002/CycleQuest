@@ -1,6 +1,7 @@
-package com.cyclequest.data.local.entity
+package com.cyclequest.data.local.dao
 
 import androidx.room.*
+import com.cyclequest.data.local.entity.CommentEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
