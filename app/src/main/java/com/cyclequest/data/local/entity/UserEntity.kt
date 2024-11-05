@@ -10,8 +10,17 @@ import com.cyclequest.core.database.sync.SyncStatus
 data class UserEntity(
     @PrimaryKey
     override val id: String,
-    val name: String,
+    val username: String,
     val email: String,
+    val phoneNumber: String?,
+    val password: String,
+    val avatarUrl: String?,
+    val status: UserStatus,
+    val totalRides: Int,
+    val totalDistance: Float,
+    val totalRideTime: Long,
+    @ColumnInfo(name = "last_login_at")
+    val lastLoginAt: Long?,
     @ColumnInfo(name = "sync_status")
     override val syncStatus: SyncStatus = SyncStatus.PENDING,
     @ColumnInfo(name = "created_at")

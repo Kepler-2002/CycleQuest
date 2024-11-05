@@ -30,7 +30,7 @@ object NetworkModule {
             .build()
     }
 
-    @Provides
-    @Singleton
-    fun provideBackendService(retrofit: Retrofit) = BackendService(retrofit)
+//    @Provides
+//    @Singleton
+//    fun provideBackendService(retrofit: Retrofit) = BackendService()
 }
