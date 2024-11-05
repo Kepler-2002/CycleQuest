@@ -61,7 +61,11 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadAdministrativeBoundary("110000") // 这里使用北京市的编码
+        viewModel.loadAdministrativeBoundary("150000") // 这里使用内蒙古的编码
+    }
+
+    LaunchedEffect(boundaryPoints) {
+        println("Boundary Points: $boundaryPoints")
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -76,18 +80,18 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
         )
 
         aMapInstance?.let { aMap ->
-            when (selectedOption) {
-                "地图" -> {
-                    aMap.clear() // 清除所有图层
-                }
-                "路线" -> {
-                    RoutingLayer(aMap)
-                }
-                "探索" -> {
-                    DiscoveryLayer(aMap)
-                }
-            }
+    when (selectedOption) {
+        "地图" -> {
+            aMap.clear() // 清除所有图层
         }
+        "路线" -> {
+            RoutingLayer(aMap)
+        }
+        "探索" -> {
+            DiscoveryLayer(aMap, boundaryPoints) // 传入 boundaryPoints
+        }
+    }
+}
 
         PillButton(
             options = options,
