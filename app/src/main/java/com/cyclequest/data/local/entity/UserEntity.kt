@@ -9,7 +9,7 @@ import com.cyclequest.core.database.sync.SyncStatus
 @Entity(tableName = "users")
 data class UserEntity(
     @PrimaryKey
-    override val id: String,
+    val id: String,
     val username: String,
     val email: String,
     val phoneNumber: String?,
