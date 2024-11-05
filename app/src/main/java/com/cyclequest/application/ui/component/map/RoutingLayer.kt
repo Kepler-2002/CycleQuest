@@ -1,26 +1,32 @@
 package com.cyclequest.application.ui.component.map
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.DisposableEffect
+import com.amap.api.maps2d.AMap
+import com.amap.api.maps2d.model.LatLng
+import com.amap.api.maps2d.model.PolylineOptions
 
 @Composable
-fun RoutingLayer() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0x80000000)) // 半透明黑色背景
-    ) {
-        Text(
-            text = "路线覆盖层",
-            color = Color.White,
-            modifier = Modifier.align(Alignment.Center)
-        )
+fun RoutingLayer(
+    aMap: AMap,
+    routePoints: List<LatLng> = emptyList(),
+    strokeWidth: Float = 10f,
+    strokeColor: Color = Color(0xFF4CAF50),  // Material Green
+) {
+    if (routePoints.isNotEmpty()) {
+        DisposableEffect(routePoints) {
+            val polyline = PolylineOptions().apply {
+                addAll(routePoints)
+                width(strokeWidth)
+                color(strokeColor.toArgb())
+            }.let { aMap.addPolyline(it) }
+
+            onDispose {
+                polyline.remove()
+            }
+        }
     }
 }
 

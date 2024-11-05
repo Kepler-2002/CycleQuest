@@ -65,15 +65,15 @@ fun rememberMapViewWithLifecycle(): MapView {
     mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
 
 //    Test: polyline
-    val latLngs: MutableList<LatLng> = ArrayList()
-    latLngs.add(LatLng(39.999391, 116.135972))
-    latLngs.add(LatLng(39.898323, 116.057694))
-    latLngs.add(LatLng(39.900430, 116.265061))
-    latLngs.add(LatLng(39.955192, 116.140092))
-    mAMap.addPolyline(
-        PolylineOptions().addAll
-            (latLngs).width(10f).color(Color.argb(255, 1, 1, 1))
-    )
+//    val latLngs: MutableList<LatLng> = ArrayList()
+//    latLngs.add(LatLng(39.999391, 116.135972))
+//    latLngs.add(LatLng(39.898323, 116.057694))
+//    latLngs.add(LatLng(39.900430, 116.265061))
+//    latLngs.add(LatLng(39.955192, 116.140092))
+//    mAMap.addPolyline(
+//        PolylineOptions().addAll
+//            (latLngs).width(10f).color(Color.argb(255, 1, 1, 1))
+//    )
 
 //    TODO: 引入DiscoveryLayer与RoutingLayer，需要传入mAMap变量，控制自定义图层绘制
 

@@ -2,6 +2,8 @@ package com.cyclequest.application.ui.component.map
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.model.LatLng
 import com.amap.api.maps2d.model.PolygonOptions
@@ -11,14 +13,17 @@ import timber.log.Timber
 fun DiscoveryLayer(
     aMap: AMap,
     boundaryPoints: List<LatLng>,
+    strokeWidth: Float = 5f,
+    strokeColor: Color = Color(0xFF4CAF50),  // Material Green
+    fillColor: Color = Color(0x284CAF50),    // 透明度约15%的绿色
 ) {
     if (boundaryPoints.isNotEmpty()) {
         DisposableEffect(boundaryPoints) {
             val polygon = PolygonOptions().apply {
                 addAll(boundaryPoints)
-                strokeWidth(5f)
-                strokeColor(android.graphics.Color.argb(255, 76, 175, 80))
-                fillColor(android.graphics.Color.argb(40, 76, 175, 80))
+                strokeWidth(strokeWidth)
+                strokeColor(strokeColor.toArgb())
+                fillColor(fillColor.toArgb())
             }.let { aMap.addPolygon(it) }
 
             onDispose {
