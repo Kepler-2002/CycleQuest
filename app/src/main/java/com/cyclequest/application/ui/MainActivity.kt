@@ -32,7 +32,6 @@ import com.cyclequest.R
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val logger = LoggerFactory.getLogger(MainActivity::class.java)
-    private val okHttpClient = OkHttpClient()
     private val eventBus = EventBus.getDefault()
 
     override fun onCreate(savedInstanceState: Bundle?) {

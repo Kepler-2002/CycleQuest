@@ -6,7 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
 class AliyunGeoApiServiceTest {
     private lateinit var aliyunGeoApiService: AliyunGeoApiService
@@ -24,7 +24,7 @@ class AliyunGeoApiServiceTest {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://geo.datav.aliyun.com/")
             .client(okHttpClient)
-            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         aliyunGeoApiService = AliyunGeoApiService(retrofit)

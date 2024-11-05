@@ -55,4 +55,18 @@ object ServiceModule {
 //    fun provideUserApi(backendService: BackendService): UserApi {
 //        return UserApi(backendService)
 //    }
+
+    @Provides
+    @Singleton
+    @AliyunRetrofit
+    fun provideAliyunRetrofit(
+        @AppOkHttpClient okHttpClient: OkHttpClient,
+        networkConfig: NetworkConfig
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(networkConfig.aliyunBaseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
 }
