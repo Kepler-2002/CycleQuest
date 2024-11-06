@@ -12,8 +12,8 @@ import com.amap.api.maps2d.model.PolylineOptions
 fun RoutingLayer(
     aMap: AMap,
     routePoints: List<LatLng> = emptyList(),
-    strokeWidth: Float = 10f,
-    strokeColor: Color = Color(0xFFFF9800),  // Material Green
+    strokeWidth: Float = 12f,
+    strokeColor: Color = Color(0xFFFF4081),
 ) {
     if (routePoints.isNotEmpty()) {
         DisposableEffect(routePoints) {
@@ -21,6 +21,8 @@ fun RoutingLayer(
                 addAll(routePoints)
                 width(strokeWidth)
                 color(strokeColor.toArgb())
+                zIndex(1f)
+                geodesic(true)
             }.let { aMap.addPolyline(it) }
 
             onDispose {

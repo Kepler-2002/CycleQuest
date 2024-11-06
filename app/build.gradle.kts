@@ -56,7 +56,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-        // freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true")
     }
 
     buildFeatures {
@@ -108,7 +107,7 @@ dependencies {
     implementation("androidx.databinding:adapters:3.2.0-alpha11")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // 高德地图
     implementation("com.amap.api:map2d:latest.integration")
@@ -184,8 +183,16 @@ dependencies {
     // Retrofit Scalars 转换器
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     testImplementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+
+
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 }
 
 kapt {
     correctErrorTypes = true
+    useBuildCache = false
+    arguments {
+        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+    }
 }

@@ -44,6 +44,23 @@ class MapViewModel @Inject constructor(
     private val _currentLocation = MutableStateFlow<LatLng?>(null)
     val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
 
+    private val _routePoints = MutableStateFlow<List<LatLng>>(emptyList())
+    val routePoints: StateFlow<List<LatLng>> = _routePoints.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            routeService.walkRouteResult.collect { result ->
+                result?.paths?.firstOrNull()?.steps?.flatMap { step ->
+                    step.polyline?.map { point ->
+                        LatLng(point.latitude, point.longitude)
+                    } ?: emptyList()
+                }?.let { points ->
+                    _routePoints.value = points
+                }
+            }
+        }
+    }
+
     fun setMapMode(mode: String) {
         viewModelScope.launch {
             when (mode) {

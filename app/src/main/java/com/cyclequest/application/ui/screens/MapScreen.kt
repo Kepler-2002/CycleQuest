@@ -17,6 +17,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
 import android.Manifest
+import androidx.compose.ui.graphics.Color
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.ui.component.map.PillButton
@@ -28,6 +29,7 @@ import com.cyclequest.application.ui.component.map.DiscoveryLayer
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val mapMode by viewModel.mapMode.collectAsState()
     val currentLocation by viewModel.currentLocation.collectAsState()
+    val routePoints by viewModel.routePoints.collectAsState()
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
     val cameraPositionState = rememberCameraPositionState()
 
@@ -58,12 +60,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 is MapViewModel.MapMode.Routing -> {
                     RoutingLayer(
                         aMap = aMap,
-                        routePoints = listOf(  // 临时测试数据，后续应该从 ViewModel 获取
-                            LatLng(39.999391, 116.135972),
-                            LatLng(39.898323, 116.057694),
-                            LatLng(39.900430, 116.265061),
-                            LatLng(39.955192, 116.140092)
-                        )
+                        routePoints = routePoints,
                     )
                 }
                 is MapViewModel.MapMode.Default -> {
