@@ -50,6 +50,9 @@ class MapViewModel @Inject constructor(
     private val _routeInfo = MutableStateFlow<RouteService.RouteInfo?>(null)
     val routeInfo: StateFlow<RouteService.RouteInfo?> = _routeInfo.asStateFlow()
 
+    private val _isRouteInfoMinimized = MutableStateFlow(false)
+    val isRouteInfoMinimized: StateFlow<Boolean> = _isRouteInfoMinimized.asStateFlow()
+
     init {
         viewModelScope.launch {
             // 监听路线点数据
@@ -120,4 +123,13 @@ class MapViewModel @Inject constructor(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
+    fun clearRouteInfo() {
+        _routeInfo.value = null
+        _routePoints.value = emptyList()
+    }
+
+    fun toggleRouteInfoMinimized() {
+        _isRouteInfoMinimized.value = !_isRouteInfoMinimized.value
+    }
 }
