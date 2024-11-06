@@ -8,99 +8,122 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import com.cyclequest.application.ui.components.map.AMapComposable
+import com.cyclequest.application.ui.components.map.MapPage
 import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
-import com.amap.api.maps2d.model.CameraPosition
-import com.amap.api.maps2d.model.LatLng
 import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
 import android.Manifest
+import com.amap.api.maps2d.AMap
+import com.cyclequest.application.ui.component.map.PillButton
+import com.cyclequest.application.ui.component.map.RoutingLayer
+import com.cyclequest.application.ui.component.map.DiscoveryLayer
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import com.cyclequest.application.ui.component.map.RouteInfoPanel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
-    val cameraPositionState = rememberCameraPositionState()
+    val mapMode by viewModel.mapMode.collectAsState()
     val currentLocation by viewModel.currentLocation.collectAsState()
-    val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    val routePoints by viewModel.routePoints.collectAsState()
+    val routeInfo by viewModel.routeInfo.collectAsState()
+    var aMapInstance by remember { mutableStateOf<AMap?>(null) }
+    val cameraPositionState = rememberCameraPositionState()
+    val isRouteInfoMinimized by viewModel.isRouteInfoMinimized.collectAsState()
 
+    // 权限处理
+    val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     LaunchedEffect(Unit) {
         if (!permissionState.status.isGranted) {
             permissionState.launchPermissionRequest()
         }
     }
 
-    LaunchedEffect(currentLocation) {
-        currentLocation?.let { location ->
-            cameraPositionState.position = CameraPosition(
-                LatLng(location.latitude, location.longitude),
-                cameraPositionState.position.zoom,
-                cameraPositionState.position.tilt,
-                cameraPositionState.position.bearing
-            )
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
-        AMapComposable(
+        // 基础地图
+        MapPage(
             modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
+            onMapReady = { aMap -> aMapInstance = aMap }
         )
+        aMapInstance?.let { aMap ->
+            // 根据模式显示不同图层
+            aMapInstance?.let { aMap ->
+                when (val mode = mapMode) {
+                    is MapViewModel.MapMode.Discovery -> {
+                        DiscoveryLayer(
+                            aMap = aMap,
+                            boundaryPoints = mode.boundaryPoints
+                        )
+                    }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            FloatingActionButton(
-                onClick = { viewModel.getCurrentLocation() },
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "定位"
-                )
+                    is MapViewModel.MapMode.Routing -> {
+                        RoutingLayer(
+                            aMap = aMap,
+                            routePoints = routePoints,
+                        )
+                    }
+
+                    is MapViewModel.MapMode.Default -> {
+                        // 默认地图模式，不需要额外图层
+                    }
+                }
             }
 
-            FloatingActionButton(
-                onClick = { 
-                    val newZoom = (cameraPositionState.position.zoom + 1).coerceAtMost(20f)
-                    cameraPositionState.position = CameraPosition(
-                        cameraPositionState.position.target,
-                        newZoom,
-                        cameraPositionState.position.tilt,
-                        cameraPositionState.position.bearing
-                    )
+            // 顶部模式切换按钮
+            PillButton(
+                options = listOf("地图", "路线", "探索"),
+                selectedOption = when (mapMode) {
+                    is MapViewModel.MapMode.Default -> "地图"
+                    is MapViewModel.MapMode.Routing -> "路线"
+                    is MapViewModel.MapMode.Discovery -> "探索"
                 },
-                modifier = Modifier.padding(bottom = 8.dp)
+                onOptionSelected = viewModel::setMapMode,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+            )
+
+            // 右侧控制按钮
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "放大"
+                FloatingActionButton(
+                    onClick = { viewModel.updateCurrentLocation() },
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    interactionSource = remember { MutableInteractionSource() },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "定位"
+                        )
+                    }
                 )
             }
+        }
 
-            FloatingActionButton(
-                onClick = { 
-                    val newZoom = (cameraPositionState.position.zoom - 1).coerceAtLeast(3f)
-                    cameraPositionState.position = CameraPosition(
-                        cameraPositionState.position.target,
-                        newZoom,
-                        cameraPositionState.position.tilt,
-                        cameraPositionState.position.bearing
+        // 只在路线模式下且有路线信息时显示面板
+        if (mapMode is MapViewModel.MapMode.Routing && routePoints.isNotEmpty()) {
+            routeInfo?.let { info ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    RouteInfoPanel(
+                        routeInfo = info,
+                        isMinimized = isRouteInfoMinimized,
+                        onMinimizedChange = { viewModel.toggleRouteInfoMinimized() },
+                        modifier = Modifier
+                            .align(if (isRouteInfoMinimized) Alignment.BottomStart else Alignment.BottomCenter)
+                            .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
                     )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "缩小"
-                )
             }
         }
     }
 }
+
