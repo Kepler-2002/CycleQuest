@@ -13,7 +13,7 @@ fun RoutingLayer(
     aMap: AMap,
     routePoints: List<LatLng> = emptyList(),
     strokeWidth: Float = 10f,
-    strokeColor: Color = Color(0xFF4CAF50),  // Material Green
+    strokeColor: Color = Color(0xFFFF9800),  // Material Green
 ) {
     if (routePoints.isNotEmpty()) {
         DisposableEffect(routePoints) {

@@ -113,6 +113,11 @@ dependencies {
     // 高德地图
     implementation("com.amap.api:map2d:latest.integration")
     implementation("com.amap.api:location:latest.integration")
+//    implementation("com.amap.api:search:latest.integration")
+    // 排除冲突的依赖
+    implementation("com.amap.api:search:9.7.0") {
+        exclude(group = "com.amap.api", module = "location")
+    }
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
