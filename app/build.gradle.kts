@@ -75,6 +75,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material3:material3:1.3.1")
     val roomVersion = "2.6.1"
 
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -183,10 +184,11 @@ dependencies {
     // Retrofit Scalars 转换器
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     testImplementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-
+    
 
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+
 }
 
 kapt {

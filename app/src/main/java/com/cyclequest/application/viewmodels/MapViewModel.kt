@@ -47,9 +47,13 @@ class MapViewModel @Inject constructor(
     private val _routePoints = MutableStateFlow<List<LatLng>>(emptyList())
     val routePoints: StateFlow<List<LatLng>> = _routePoints.asStateFlow()
 
+    private val _routeInfo = MutableStateFlow<RouteService.RouteInfo?>(null)
+    val routeInfo: StateFlow<RouteService.RouteInfo?> = _routeInfo.asStateFlow()
+
     init {
         viewModelScope.launch {
-            routeService.walkRouteResult.collect { result ->
+            // 监听路线点数据
+            routeService.rideRouteResult.collect { result ->
                 result?.paths?.firstOrNull()?.steps?.flatMap { step ->
                     step.polyline?.map { point ->
                         LatLng(point.latitude, point.longitude)
@@ -57,6 +61,13 @@ class MapViewModel @Inject constructor(
                 }?.let { points ->
                     _routePoints.value = points
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            // 监听路线信息数据
+            routeService.routeInfo.collect { info ->
+                _routeInfo.value = info
             }
         }
     }
@@ -79,7 +90,7 @@ class MapViewModel @Inject constructor(
         val startPoint = LatLng(39.909187, 116.397451)  // 天安门
         val endPoint = LatLng(39.914759, 116.408333)    // 王府井
 
-        routeService.searchWalkRoute(startPoint, endPoint)
+        routeService.searchRideRoute(startPoint, endPoint)
     }
 
     // Discovery Mode
