@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
@@ -76,6 +76,8 @@ android {
 }
 
 dependencies {
+    // livedata
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
     val roomVersion = "2.6.1"
     
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -95,7 +97,29 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
+
+
     // Hilt
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    // Hilt with Compose
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    // Lifecycle
+    val lifecycleVersion = "2.6.2"
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
+    kapt("com.google.dagger:hilt-compiler:2.48")
+
     implementation("com.google.dagger:hilt-android:2.48")
     implementation("androidx.navigation:navigation-compose:2.8.2")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:3.0.2")
@@ -107,7 +131,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("androidx.databinding:adapters:3.2.0-alpha11")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     
     // 高德地图
@@ -171,8 +195,15 @@ dependencies {
     // testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     // testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     // testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+
+
+
+
 }
 
 kapt {
     correctErrorTypes = true
+    arguments {
+        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+    }
 }

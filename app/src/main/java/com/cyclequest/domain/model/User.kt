@@ -2,6 +2,7 @@ package com.cyclequest.domain.model
 
 import com.cyclequest.data.local.entity.UserStatus
 
+
 data class User(
     val id: String,
     val username: String,

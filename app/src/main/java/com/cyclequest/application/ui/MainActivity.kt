@@ -3,6 +3,7 @@ package com.cyclequest.application.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
@@ -24,16 +25,22 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import okhttp3.OkHttpClient
 import org.greenrobot.eventbus.EventBus
 import org.slf4j.LoggerFactory
 import com.cyclequest.R
+import com.cyclequest.application.viewmodels.RegistrationModule
+import com.cyclequest.application.viewmodels.RegistrationViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val logger = LoggerFactory.getLogger(MainActivity::class.java)
     private val okHttpClient = OkHttpClient()
     private val eventBus = EventBus.getDefault()
+
+    //在MainActivity中，获取viewModels实例
+    private val registrationViewModel: RegistrationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +51,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +61,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("单车控制", "地图", "论坛", "设置")
+    val registrationViewModel: RegistrationViewModel = viewModel()
 
     // 修改图标列表
     val icons = listOf(
@@ -71,7 +81,11 @@ fun MainScreen() {
                         selected = selectedItem == index,
                         onClick = {
                             selectedItem = index
-                            navController.navigate(item)
+                            navController.navigate(item) {
+                                //避免创建重复的后退栈
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -82,8 +96,13 @@ fun MainScreen() {
             composable("单车控制") { BicycleControlScreen() }
             composable("地图") { MapScreen() }
             composable("论坛") { ForumScreen() }
-            composable("设置") { SettingsScreen() }
+            composable("设置") { SettingsScreen(navController) }
+            composable("register") {
+                RegistrationScreen(
+                    navController = navController,
+                    registrationViewModel = registrationViewModel
+                )
+            }
         }
     }
 }
-
