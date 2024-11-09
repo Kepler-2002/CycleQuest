@@ -23,6 +23,7 @@ import com.cyclequest.application.ui.component.map.RoutingLayer
 import com.cyclequest.application.ui.component.map.DiscoveryLayer
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.amap.api.maps2d.model.LatLng
+import com.cyclequest.application.ui.component.map.SearchPanel
 import com.cyclequest.application.ui.component.map.RouteInfoPanel
 import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
@@ -148,6 +149,13 @@ fun MapScreen(
                             .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
                     )
                 }
+            }
+        }
+
+        // 路线模式下显示的搜索框
+        if(mapMode is MapViewModel.MapMode.Routing) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SearchPanel(modifier = Modifier)
             }
         }
     }
