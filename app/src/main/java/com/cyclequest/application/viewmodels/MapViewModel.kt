@@ -48,7 +48,16 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    // 地理位置信息监听更新回调函数
+    fun locationUpdateCallback(location: LatLng){
+        Log.d("MapViewModel", "位置已更新到ViewModel: lat=${location.latitude}, lng=${location.longitude}")
+        _currentLocation.value = location
 
+    }
+
+    fun updateCurrentLocation(location: LatLng) {
+        // 这里可以添加任何你需要基于位置信息执行的逻辑
+    }
 
     private fun checkLocationPermission(): Boolean =
         ContextCompat.checkSelfPermission(

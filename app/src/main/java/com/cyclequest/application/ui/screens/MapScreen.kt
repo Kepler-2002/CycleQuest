@@ -26,6 +26,7 @@ import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.ui.component.map.RouteInfoPanel
 import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
+import android.util.Log
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -73,7 +74,13 @@ fun MapScreen(
         // 基础地图
         MapPage(
             modifier = Modifier.fillMaxSize(),
-            onMapReady = { aMap -> aMapInstance = aMap }
+            onMapReady = { aMap -> 
+                Log.d("MapScreen", "地图初始化完成")
+                aMapInstance = aMap 
+            },
+            onLocationChanged = { location ->
+                mapViewModel.locationUpdateCallback(location)
+            }
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
