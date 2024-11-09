@@ -79,8 +79,7 @@ fun MapScreen(
                 aMapInstance = aMap 
             },
             onLocationChanged = { location ->
-                mapViewModel.locationUpdateCallback(location)
-            }
+                discoveryViewModel.locationUpdateCallback(location) }
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层

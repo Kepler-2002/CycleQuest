@@ -16,6 +16,7 @@ fun DiscoveryLayer(
     strokeWidth: Float = 5f,
     strokeColor: Color = Color(0xFF4CAF50),  // Material Green
     fillColor: Color = Color(0x284CAF50),    // 透明度约15%的绿色
+    isLight : Boolean = false // 默认没有点亮
 ) {
     if (boundaryPoints.isNotEmpty()) {
         DisposableEffect(boundaryPoints) {
