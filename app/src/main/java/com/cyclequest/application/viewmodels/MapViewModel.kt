@@ -8,12 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps2d.model.CameraPosition
-import com.amap.api.maps2d.model.LatLng
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.route.RouteSearch
 import com.amap.api.services.route.WalkRouteResult
 import com.cyclequest.domain.repository.AdministrativeDivisionRepository
-import com.cyclequest.service.location.LocationService
 import com.cyclequest.service.route.RouteService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -23,12 +21,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.amap.api.maps2d.model.LatLng
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val locationService: LocationService,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) : ViewModel() {   
 
     sealed class MapMode {
         object Default : MapMode()
@@ -50,15 +48,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun updateCurrentLocation() {
-        if (checkLocationPermission()) {
-            locationService.getCurrentLocation { location ->
-                location?.let {
-                    _currentLocation.value = LatLng(it.latitude, it.longitude)
-                }
-            }
-        }
-    }
+
 
     private fun checkLocationPermission(): Boolean =
         ContextCompat.checkSelfPermission(

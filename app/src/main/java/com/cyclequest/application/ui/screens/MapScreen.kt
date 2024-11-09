@@ -120,7 +120,7 @@ fun MapScreen(
                     .padding(16.dp)
             ) {
                 FloatingActionButton(
-                    onClick = { mapViewModel.updateCurrentLocation() },
+                    onClick = {},
                     modifier = Modifier.padding(bottom = 16.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
