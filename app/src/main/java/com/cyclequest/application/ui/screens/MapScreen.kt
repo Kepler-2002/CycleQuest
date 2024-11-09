@@ -22,24 +22,50 @@ import com.cyclequest.application.ui.component.map.PillButton
 import com.cyclequest.application.ui.component.map.RoutingLayer
 import com.cyclequest.application.ui.component.map.DiscoveryLayer
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.ui.component.map.RouteInfoPanel
+import com.cyclequest.application.viewmodels.RoutingViewModel
+import com.cyclequest.application.viewmodels.DiscoveryViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
-    val mapMode by viewModel.mapMode.collectAsState()
-    val currentLocation by viewModel.currentLocation.collectAsState()
-    val routePoints by viewModel.routePoints.collectAsState()
-    val routeInfo by viewModel.routeInfo.collectAsState()
+fun MapScreen(
+    mapViewModel: MapViewModel = hiltViewModel(),
+    routingViewModel: RoutingViewModel = hiltViewModel(),
+    discoveryViewModel: DiscoveryViewModel = hiltViewModel()
+) {
+    val mapMode by mapViewModel.mapMode.collectAsState()
+    val currentLocation by mapViewModel.currentLocation.collectAsState()
+    val routePoints by routingViewModel.routePoints.collectAsState()
+    val routeInfo by routingViewModel.routeInfo.collectAsState()
+    val boundaryPoints by discoveryViewModel.boundaryPoints.collectAsState()
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
     val cameraPositionState = rememberCameraPositionState()
-    val isRouteInfoMinimized by viewModel.isRouteInfoMinimized.collectAsState()
+    val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
 
     // 权限处理
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     LaunchedEffect(Unit) {
         if (!permissionState.status.isGranted) {
             permissionState.launchPermissionRequest()
+        }
+    }
+
+    // 当地图模式改变时加载相应数据
+    LaunchedEffect(mapMode) {
+        when (mapMode) {
+            is MapViewModel.MapMode.Discovery -> {
+                discoveryViewModel.loadBoundary("150000")
+
+            }
+            is MapViewModel.MapMode.Routing -> {
+                // 加载路线数据
+                routingViewModel.searchRoute(
+                    LatLng(39.909187, 116.397451),
+                    LatLng(39.914759, 116.408333)
+                )
+            }
+            else -> {}
         }
     }
 
@@ -52,11 +78,11 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
             aMapInstance?.let { aMap ->
-                when (val mode = mapMode) {
+                when (mapMode) {
                     is MapViewModel.MapMode.Discovery -> {
                         DiscoveryLayer(
                             aMap = aMap,
-                            boundaryPoints = mode.boundaryPoints
+                            boundaryPoints = boundaryPoints
                         )
                     }
 
@@ -81,7 +107,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                     is MapViewModel.MapMode.Routing -> "路线"
                     is MapViewModel.MapMode.Discovery -> "探索"
                 },
-                onOptionSelected = viewModel::setMapMode,
+                onOptionSelected = mapViewModel::setMapMode,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 16.dp)
@@ -94,7 +120,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                     .padding(16.dp)
             ) {
                 FloatingActionButton(
-                    onClick = { viewModel.updateCurrentLocation() },
+                    onClick = { mapViewModel.updateCurrentLocation() },
                     modifier = Modifier.padding(bottom = 16.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -116,7 +142,7 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                     RouteInfoPanel(
                         routeInfo = info,
                         isMinimized = isRouteInfoMinimized,
-                        onMinimizedChange = { viewModel.toggleRouteInfoMinimized() },
+                        onMinimizedChange = { routingViewModel.toggleRouteInfoMinimized() },
                         modifier = Modifier
                             .align(if (isRouteInfoMinimized) Alignment.BottomStart else Alignment.BottomCenter)
                             .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
