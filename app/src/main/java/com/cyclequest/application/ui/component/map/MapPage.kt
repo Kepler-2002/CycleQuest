@@ -17,8 +17,11 @@ import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.MapView
 import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
+import com.amap.api.maps2d.model.Marker
+import com.amap.api.maps2d.model.MarkerOptions
 import com.amap.api.maps2d.model.MyLocationStyle
 import com.amap.api.maps2d.model.PolylineOptions
+import com.amap.api.maps2d.model.BitmapDescriptorFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -59,7 +62,38 @@ fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
     myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
     mAMap.setMyLocationStyle(myLocationStyle) //设置定位蓝点的Style
     //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
-    mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
+    mAMap.setMyLocationEnabled(false) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
+
+    // 添加一个可拖动的标记来模拟定位蓝点
+    var marker by remember { mutableStateOf<Marker?>(null) }
+
+    // 初始化地图和标记
+    LaunchedEffect(Unit) {
+        marker = mAMap.addMarker(
+            MarkerOptions()
+                .position(LatLng(22.31251, 114.1928467)) // 初始位置
+                .draggable(true) // 允许拖动
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)) // 设置标记颜色为蓝色
+        )
+
+        // 设置标记拖动监听器
+        mAMap.setOnMarkerDragListener(object : AMap.OnMarkerDragListener {
+            override fun onMarkerDragStart(marker: Marker) {
+                // 拖动开始
+            }
+
+            override fun onMarkerDrag(marker: Marker) {
+                // 拖动中
+            }
+
+            override fun onMarkerDragEnd(marker: Marker) {
+                // 拖动结束，更新位置
+                val newPosition = marker.position
+                mAMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition))
+                onLocationChanged(newPosition)
+            }
+        })
+    }
 
     // 定时获取位置
     LaunchedEffect(Unit) {
