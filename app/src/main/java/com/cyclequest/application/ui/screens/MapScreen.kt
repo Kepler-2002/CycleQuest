@@ -56,7 +56,7 @@ fun MapScreen(
     LaunchedEffect(mapMode) {
         when (mapMode) {
             is MapViewModel.MapMode.Discovery -> {
-                discoveryViewModel.loadBoundary("150000")
+                discoveryViewModel.loadBoundary("810006")
 
             }
             is MapViewModel.MapMode.Routing -> {
