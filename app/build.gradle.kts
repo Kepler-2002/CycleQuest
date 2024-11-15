@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.cyclequest"
     compileSdk = 34
-    
+
     defaultConfig {
         applicationId = "com.cyclequest"
         minSdk = 26
@@ -16,7 +16,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a","x86_64")
         }
@@ -41,22 +41,21 @@ android {
         }
     }
 
-    
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    
+
     kotlinOptions {
         jvmTarget = "17"
-        // freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true")
     }
 
     buildFeatures {
@@ -78,8 +77,9 @@ android {
 dependencies {
     // livedata
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
+    implementation("androidx.compose.material3:material3:1.3.1")
     val roomVersion = "2.6.1"
-    
+
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
@@ -88,7 +88,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    
+
     // Compose
     val composeBomVersion = "2023.08.00"
     implementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
@@ -131,13 +131,18 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("androidx.databinding:adapters:3.2.0-alpha11")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    
     // 高德地图
     implementation("com.amap.api:map2d:latest.integration")
     implementation("com.amap.api:location:latest.integration")
-    
+//    implementation("com.amap.api:search:latest.integration")
+    // 排除冲突的依赖
+    implementation("com.amap.api:search:9.7.0") {
+        exclude(group = "com.amap.api", module = "location")
+    }
+
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
 
@@ -174,35 +179,45 @@ dependencies {
 
     // Room 测试依赖
     testImplementation("androidx.room:room-testing:2.6.1")
-    
+
     // AndroidX 测试依赖
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("androidx.test:runner:1.5.0")
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    
+
     // Kotlin 协程测试
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-    
+
     // Mock 测试框架
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("com.google.truth:truth:1.1.5")
-    
+
     // Robolectric - Android 单元测试框架
     testImplementation("org.robolectric:robolectric:4.10.3")
-    
+
     // JUnit 5
     // testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     // testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     // testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
 
+    // OkHttp 日志拦截器
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    testImplementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
 
+    // Retrofit Scalars 转换器
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    testImplementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    
 
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 
 }
 
 kapt {
     correctErrorTypes = true
+    useBuildCache = false
     arguments {
         arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
     }

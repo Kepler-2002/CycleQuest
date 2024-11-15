@@ -40,7 +40,6 @@ import com.cyclequest.application.viewmodels.RegistrationViewModel
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val logger = LoggerFactory.getLogger(MainActivity::class.java)
-    private val okHttpClient = OkHttpClient()
     private val eventBus = EventBus.getDefault()
 
     // 在MainActivity中，获取viewModels实例

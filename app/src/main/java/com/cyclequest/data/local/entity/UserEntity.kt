@@ -12,7 +12,7 @@ data class UserEntity(
     //所有entity继承于BaseEntity的属性有：id syncStatus createdAt updatedAt
     // id 为什么不是 Int
     @PrimaryKey
-    override val id: String,
+    val id: String,
     val username: String,
     val email: String,
     val phoneNumber: String?,
