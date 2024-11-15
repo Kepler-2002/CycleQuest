@@ -15,6 +15,7 @@ import androidx.navigation.NavController
 import com.cyclequest.application.viewmodels.RegistrationViewModel
 import com.cyclequest.core.network.ApiError
 import com.cyclequest.core.network.ApiResult
+import com.cyclequest.domain.model.User
 
 @Composable
 fun RegistrationScreen(
@@ -25,7 +26,8 @@ fun RegistrationScreen(
     val username by registrationViewModel.username.observeAsState("")
     val email by registrationViewModel.email.observeAsState("")
     val password by registrationViewModel.password.observeAsState("")
-    val registrationResult by registrationViewModel.registrationResult.observeAsState(ApiResult.Loading)
+    //注册结果响应 registrationResult的状态 -- 刚进入界面还没有开始时，用户状态不应为loading。使用null
+    val registrationResult by registrationViewModel.registrationResult.observeAsState(null)
     var error by remember { mutableStateOf("") }
 
     Column(
@@ -55,7 +57,8 @@ fun RegistrationScreen(
             password = password,
             onUsernameChange = { registrationViewModel.username.value = it },
             onEmailChange = { registrationViewModel.email.value = it },
-            onPasswordChange = { registrationViewModel.password.value = it }
+            onPasswordChange = { registrationViewModel.password.value = it },
+            registrationViewModel = registrationViewModel // 传入 ViewModel
         )
 
         // 错误显示
@@ -76,28 +79,20 @@ fun RegistrationScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = {
-                    if (registrationViewModel.isInputValid()) {
-                        registrationViewModel.userRegisterLocally()
-                    } else {
-                        error = "请填写所有字段"
-                    }
-                }
+                onClick = { registrationViewModel.userRegisterLocally() }
             ) {
                 Text("本地注册")
+                // 本地注册之后的的处理逻辑 -- 调整从应用首页注册后，点击下一步 -- 进行所有页面的用户数据同步
+                // 并首先跳转车控页面？
             }
 
             Button(
                 onClick = {
-                    if (password.length < 8) {
-                        error = "密码必须至少为8个字符"
-                    } else {
-                        error = ""
-                        // TODO: 处理下一步逻辑
-                    }
+                    error = "" // 清除之前的错误信息
                 }
             ) {
-                Text("下一步")
+                Text("跳过注册")
+                // 跳过注册 -- 则使用默认用户信息 + 跳转车控页面
             }
         }
 
@@ -105,6 +100,7 @@ fun RegistrationScreen(
         RegistrationResultHandler(
             registrationResult = registrationResult,
             onSuccess = { navController.navigateUp() }
+            // 暂时安排注册成功后跳转回 路由控制的页面 -- 后续将注册放到首页，路由跳转车控页
         )
     }
 }
@@ -116,44 +112,87 @@ private fun RegistrationInputFields(
     password: String,
     onUsernameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    registrationViewModel: RegistrationViewModel
 ) {
+    // 初始化文本框错误状态的默认值
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var usernameError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
     TextField(
         value = username,
-        onValueChange = onUsernameChange,
+        onValueChange = {
+            onUsernameChange(it)
+            usernameError = registrationViewModel.validateUsername(it)
+        },
         label = { Text("用户名") },
         modifier = Modifier.fillMaxWidth(),
-        singleLine = true
+        singleLine = true,
+        isError = usernameError != null,
+        supportingText = {
+            usernameError?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
     )
-
     Spacer(modifier = Modifier.height(16.dp))
-
     TextField(
         value = email,
-        onValueChange = onEmailChange,
+        onValueChange = {
+            onEmailChange(it)
+            emailError = registrationViewModel.validateEmail(it)
+        },
         label = { Text("电子邮箱") },
         modifier = Modifier.fillMaxWidth(),
-        singleLine = true
+        singleLine = true,
+        isError = emailError != null,
+        supportingText = {
+            emailError?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
     )
-
     Spacer(modifier = Modifier.height(16.dp))
-
     TextField(
         value = password,
-        onValueChange = onPasswordChange,
+        onValueChange = {
+            onPasswordChange(it)
+            passwordError = registrationViewModel.validatePassword(it)
+        },
         label = { Text("密码") },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        visualTransformation = PasswordVisualTransformation()
+        isError = passwordError != null,
+        supportingText = {
+            passwordError?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
     )
 }
 
 @Composable
 private fun RegistrationResultHandler(
-    registrationResult: ApiResult<*>,
+    registrationResult: ApiResult<User>?,
     onSuccess: () -> Unit
 ) {
     when (registrationResult) {
+        // Bug: loading状态 的加载圆圈 一直显示
+        // 检查viewModel -- registrationResult 默认值 被设置为 loading
+        null -> {
+            // 初始状态不显示内容
+        }
         is ApiResult.Loading -> {
             Box(
                 modifier = Modifier.fillMaxWidth(),
