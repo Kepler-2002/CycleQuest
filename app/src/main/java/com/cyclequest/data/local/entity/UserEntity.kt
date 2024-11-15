@@ -9,7 +9,7 @@ import com.cyclequest.core.database.sync.SyncStatus
 @Entity(tableName = "users")
 data class UserEntity(
 
-    //所有entity继承于BaseEntity的属性有：id syncStatus createdAt updatedAt
+    //所有entity继承于BaseEntity的属性有: createdAt updatedAt
     // id 为什么不是 Int
     @PrimaryKey
     val id: String,
