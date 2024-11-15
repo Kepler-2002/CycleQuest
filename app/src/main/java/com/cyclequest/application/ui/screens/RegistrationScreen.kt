@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.cyclequest.application.viewmodels.RegistrationViewModel
 import com.cyclequest.core.network.ApiError
@@ -33,22 +34,15 @@ fun RegistrationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 顶部栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { navController.navigateUp() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-            }
-            Text("注册", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.width(48.dp))
-        }
+        Text(
+            "用户注册",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
 
         // 输入字段
         RegistrationInputFields(
@@ -79,15 +73,28 @@ fun RegistrationScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = { registrationViewModel.userRegisterLocally() }
+                onClick = {
+                    registrationViewModel.userRegisterLocally()
+                    //注册成功后切换登录模块
+                    // bug: 点击 本地注册 注册成功后，应自动跳转login，但是并没有实现
+                    // -- 因为 registrationResult 的状态更新是异步的
+                    // 移除 点击按钮立即导航的逻辑
+                    /*if (registrationResult is ApiResult.Success){
+                        navController.navigate("login")
+                    }*/
+                    error = ""  // 清除之前提示的错误信息
+                },
+                // enabled = username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()
             ) {
                 Text("本地注册")
-                // 本地注册之后的的处理逻辑 -- 调整从应用首页注册后，点击下一步 -- 进行所有页面的用户数据同步
-                // 并首先跳转车控页面？
             }
 
             Button(
                 onClick = {
+                    registrationViewModel.skipRegistration()
+                    navController.navigate("单车控制"){
+                        popUpTo("register") {inclusive = true}
+                    }
                     error = "" // 清除之前的错误信息
                 }
             ) {
@@ -99,9 +106,23 @@ fun RegistrationScreen(
         // 注册结果处理
         RegistrationResultHandler(
             registrationResult = registrationResult,
+            navController = navController,
             onSuccess = { navController.navigateUp() }
             // 暂时安排注册成功后跳转回 路由控制的页面 -- 后续将注册放到首页，路由跳转车控页
         )
+
+        // 添加登录按钮
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(
+                onClick = { navController.navigate("login") }
+            ) {
+                Text("已有账号？点击登录")
+            }
+        }
+
     }
 }
 
@@ -185,6 +206,7 @@ private fun RegistrationInputFields(
 @Composable
 private fun RegistrationResultHandler(
     registrationResult: ApiResult<User>?,
+    navController: NavController,
     onSuccess: () -> Unit
 ) {
     when (registrationResult) {
@@ -204,8 +226,13 @@ private fun RegistrationResultHandler(
             }
         }
         is ApiResult.Success -> {
-            LaunchedEffect(Unit) {
-                onSuccess()
+            // 在 RegistrationResultHandler 中的 Success 分支添加导航逻辑
+            // 使用 LaunchedEffect 并将 registrationResult 作为 key，确保在注册成功时触发导航
+            // 添加了 popUpTo 以清除回退栈中的注册页面
+            LaunchedEffect(registrationResult) {
+                navController.navigate("login") {
+                    popUpTo("register") { inclusive = true }
+                }
             }
         }
         is ApiResult.Error -> {

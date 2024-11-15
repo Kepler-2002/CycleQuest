@@ -1,6 +1,6 @@
 package com.cyclequest.domain.repository
 
-import com.cyclequest.application.ui.screens.user
+
 import com.cyclequest.core.database.sync.DatabaseSync
 import com.cyclequest.core.database.sync.SyncStatus
 import com.cyclequest.core.network.ApiError
@@ -91,8 +91,14 @@ class UserRepository @Inject constructor(
         返回带有新ID的用户对象*/
     }
 
-    // 4. 同步云端
-    /* 如果通过网络请求,也可以返回类似 ApiResult 类型的结果
+    // 用户登陆时获取邮箱
+    suspend fun getUserByEmail(email: String): User? {
+        return userDao.getUserByEmail(email)?.let { userEntity ->
+            userMapper.toDomain(userEntity)
+        }
+
+        // 4. 同步云端
+        /* 如果通过网络请求,也可以返回类似 ApiResult 类型的结果
     suspend fun UserRegisterNetwork(user: User): ApiResult<User> {
         return try {
             // 调用 API 注册
@@ -107,4 +113,5 @@ class UserRepository @Inject constructor(
         }
     }
     */
+    }
 }

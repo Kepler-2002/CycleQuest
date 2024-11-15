@@ -9,10 +9,12 @@ import com.cyclequest.core.network.ApiError
 import com.cyclequest.core.network.ApiResult
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.local.entity.UserStatus
+import com.cyclequest.data.local.preferences.UserPreferences
 import com.cyclequest.data.mapper.UserMapper
 import com.cyclequest.data.sync.SyncManager
 import com.cyclequest.domain.model.User
 import com.cyclequest.domain.repository.UserRepository
+import com.google.android.gms.common.api.Api
 import com.loc.u
 import dagger.Module
 import dagger.Provides
@@ -42,8 +44,29 @@ repository的flow / userDao的Flow
 // 通过↓注释来标记viewModel
 @HiltViewModel
 class RegistrationViewModel @Inject constructor (
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
+    // 登录状态
+    private val _loginState = MutableStateFlow<ApiResult<User>?>(null)
+    val loginState: StateFlow<ApiResult<User>?> = _loginState.asStateFlow()
+
+    // 添加当前用户状态
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+
+    init {
+        // 初始化时从 SharedPreferences 加载用户
+        viewModelScope.launch {
+            _currentUser.value = userPreferences.getUser()
+        }
+    }
+
+    // 在登录成功时保存用户
+    private fun saveUser(user: User) {
+        userPreferences.saveUser(user)
+        _currentUser.value = user
+    }
 
     // 保存用户输入的数据
     val username = MutableLiveData<String>()
@@ -169,6 +192,105 @@ class RegistrationViewModel @Inject constructor (
         }
     }
 
+    fun loginUser(
+        email: String,
+        password: String,
+        onSuccess: (User) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            _loginState.value = ApiResult.Loading
+            try {
+                val result = userRepository.getUserByEmail(email)
+                when {
+                    result == null -> {
+                        _loginState.value = ApiResult.Error(ApiError.ServerError("邮箱不存在"))
+                        onError("邮箱不存在")
+                    }
+                    result.password != password -> {
+                        _loginState.value = ApiResult.Error(ApiError.ServerError("密码错误"))
+                        onError("密码错误")
+                    }
+                    else -> {
+                        _loginState.value = ApiResult.Success(result)
+                        saveUser(result)    //保存用户信息
+                        onSuccess(result)
+                    }
+                }
+            } catch (e: Exception) {
+                _loginState.value = ApiResult.Error(ApiError.ServerError(e.message ?: "未知错误"))
+                onError(e.message ?: "未知错误")
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // ViewModel 被销毁时清除状态
+        _loginState.value = null
+    }
+
+    fun skipRegistration() {
+        viewModelScope.launch {
+            val currentTime = System.currentTimeMillis()
+            val defaultUser = User(
+                id = "guest_${currentTime}",
+                username = "游客用户",
+                email = "guest@example.com",
+                phoneNumber = null,  // 可选字段，设为 null
+                password = "guest_password",
+                avatarUrl = null,    // 可选字段，设为 null
+                status = UserStatus.ACTIVE,  // 设置用户状态为激活
+                totalRides = 0,      // 初始骑行次数为 0
+                totalDistance = 0f,  // 初始骑行距离为 0
+                totalRideTime = 0L,  // 初始骑行时间为 0
+                lastLoginAt = currentTime,  // 设置最后登录时间为当前时间
+                createdAt = currentTime,    // 设置创建时间为当前时间
+                updatedAt = currentTime     // 设置更新时间为当前时间
+            )
+
+            // 1. 先保存到数据库
+            val result = userRepository.UserRegisterLocally(defaultUser)
+
+            // 2. 根据保存结果更新状态
+            when (result) {
+                is ApiResult.Success -> {
+                    // 更新注册状态
+                    _registrationResult.value = result
+                    // 更新登录状态
+                    _loginState.value = result
+                }
+                is ApiResult.Error -> {
+                    _registrationResult.value = result
+                    _loginState.value = result
+                }
+                else -> {
+                    // 处理其他情况
+                }
+            }
+
+            /*// 用户追踪用户的登录状态,使用StateFlow进行状态管理，便于LoginScreen观察登录是否成功
+            _loginState.value = ApiResult.Success(defaultUser)
+            // 将默认用户信息保存到本地
+            userRepository.UserRegisterLocally(defaultUser)
+            // 更新注册结果状态，便于RegistrationScreen观察注册是否成功
+            _registrationResult.value = ApiResult.Success(defaultUser)*/
+        }
+    }
+
+    // 添加登出方法
+    fun logout() {
+        viewModelScope.launch {
+            userPreferences.clearUser()  // 清除保存的用户信息
+            _currentUser.value = null    // 清除当前用户状态
+            _loginState.value = null     // 重置登录状态
+        }
+    }
+
+    // 为ProfileScreen获取用户信息提供函数，暂以userID为例
+    fun getCurrentUserId(): String? {
+        return currentUser.value?.id
+    }
 
 
 }
