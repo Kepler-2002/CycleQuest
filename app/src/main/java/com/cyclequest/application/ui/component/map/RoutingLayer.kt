@@ -1,21 +1,57 @@
 package com.cyclequest.application.ui.component.map
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.model.*
+import com.cyclequest.application.viewmodels.MapViewModel
+import com.cyclequest.application.viewmodels.RoutingViewModel
 import java.lang.Math
 
 @Composable
 fun RoutingLayer(
     aMap: AMap,
-    routePoints: List<LatLng> = emptyList(),
+//    routePoints: List<LatLng> = emptyList(),
     strokeWidth: Float = 12f,
     strokeColor: Color = Color(0xFF2196F3),
+    routingViewModel: RoutingViewModel = hiltViewModel(),
 ) {
+    val routePoints by routingViewModel.routePoints.collectAsState()
+    val routeInfo by routingViewModel.routeInfo.collectAsState()
+    val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
+
+    // 显示的搜索框
+    Box(modifier = Modifier.fillMaxSize()) {
+        SearchPanel(modifier = Modifier)
+    }
+    // 有路线信息时
     if (routePoints.isNotEmpty()) {
+        // 显示面板
+        routeInfo?.let { info ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                RouteInfoPanel(
+                    routeInfo = info,
+                    isMinimized = isRouteInfoMinimized,
+                    onMinimizedChange = { routingViewModel.toggleRouteInfoMinimized() },
+                    modifier = Modifier
+                        .align(if (isRouteInfoMinimized) Alignment.BottomStart else Alignment.BottomCenter)
+                        .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
+                )
+            }
+        }
+
+        // 显示路线
         DisposableEffect(routePoints) {
             // 阴影效果
             val shadowPolyline = aMap.addPolyline(PolylineOptions().apply {
