@@ -21,10 +21,15 @@ import androidx.compose.ui.text.style.TextOverflow  // Add this import
 import com.cyclequest.application.ui.component.forum.AwardItem
 import com.cyclequest.application.ui.component.forum.AwardEventCard
 import com.cyclequest.application.ui.component.forum.PostItem
+import com.cyclequest.application.viewmodels.ForumViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForumScreen() {
+fun ForumScreen(navController: NavController, viewModel: ForumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     Scaffold(
         topBar = {
@@ -36,23 +41,38 @@ fun ForumScreen() {
                     }
                 }
             )
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate("CreatePostScreen")  },
+                modifier = Modifier.size(72.dp),
+                containerColor = Color.Green,
+                contentColor = Color.White
+            ) {
+                Text(
+                    "+",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Status tabs
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text("正在进行", color = Color.Green, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(16.dp))
-                Text("即将上新", color = Color.Gray)
-            }
+//            // Status tabs
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp)
+//            ) {
+//                Text("正在进行", color = Color.Green, fontWeight = FontWeight.Bold)
+//                Spacer(modifier = Modifier.width(16.dp))
+//                Text("即将上新", color = Color.Gray)
+//            }
 
             // My awards space
             Text(
@@ -72,45 +92,65 @@ fun ForumScreen() {
                 }
             }
 
-            // My post space
-            Text(
-                "我的帖子",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            // Posts row
-            LazyRow(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(3) { index ->
-                    PostItem(index)
-                }
-            }
+//            // My post space
+//            Text(
+//                "我的帖子",
+//                modifier = Modifier.padding(16.dp),
+//                style = MaterialTheme.typography.titleMedium
+//            )
+//
+//            // Posts row
+//            LazyRow(
+//                modifier = Modifier.padding(horizontal = 16.dp),
+//                horizontalArrangement = Arrangement.spacedBy(16.dp)
+//            ) {
+//                items(3) { index ->
+//                    PostItem(index)
+//                }
+//            }
 
             // Category tabs
-            TabRow(selectedTabIndex = 0) {
-                listOf("推荐", "发帖", "邀请有礼", "晒奖牌").forEachIndexed { index, title ->
+            val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
+
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                listOf("推荐", "我的帖子").forEachIndexed { index, title ->
                     Tab(
-                        selected = index == 0,
-                        onClick = { /* TODO: Implement tab selection */ },
+                        selected = index == selectedTabIndex,
+                        onClick = { viewModel.selectTab(index) },
                         text = { Text(title) }
                     )
                 }
             }
 
             // Award events
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(2) { index ->
-                    AwardEventCard(index)
+            when (selectedTabIndex) {
+                0 -> {
+                    // Recommended content
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(2) { index ->
+                            AwardEventCard(index)
+                        }
+                    }
+                }
+                1 -> {
+                    // My posts content
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(3) { index ->
+                            PostItem(index)
+                        }
+                    }
                 }
             }
         }
     }
 }
+
 
