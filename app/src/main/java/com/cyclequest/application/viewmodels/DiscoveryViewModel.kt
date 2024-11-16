@@ -2,6 +2,7 @@ package com.cyclequest.application.viewmodels
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps2d.model.LatLng
@@ -19,6 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class ProvinceState {
+    DEFAULT, EXPLORED
+}
 
 @HiltViewModel
 class DiscoveryViewModel @Inject constructor(
@@ -26,8 +30,13 @@ class DiscoveryViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _boundaryPoints = MutableStateFlow<List<LatLng>>(emptyList())
-    val boundaryPoints: StateFlow<List<LatLng>> = _boundaryPoints.asStateFlow()
+    private val _provinceStates = mutableStateMapOf<String, ProvinceState>().apply {
+        this["150000"] = ProvinceState.EXPLORED // 内蒙古
+    }
+    val provinceStates: Map<String, ProvinceState> get() = _provinceStates
+
+    private val _provinceBoundaries = mutableStateMapOf<String, List<LatLng>>()
+    val provinceBoundaries: Map<String, List<LatLng>> get() = _provinceBoundaries
 
     private val geocodeSearch by lazy {
         GeocodeSearch(context)
@@ -37,12 +46,17 @@ class DiscoveryViewModel @Inject constructor(
         viewModelScope.launch {
             administrativeDivisionRepository.getAdministrativeDivisionBoundary(divisionCode)
                 .onSuccess { division ->
-                    _boundaryPoints.value = division.boundaryPoints
+                    _provinceBoundaries[divisionCode] = division.boundaryPoints
+                    _provinceStates.putIfAbsent(divisionCode, ProvinceState.DEFAULT)
                 }
                 .onFailure {
-                    _boundaryPoints.value = emptyList()
+                    _provinceBoundaries[divisionCode] = emptyList()
                 }
         }
+    }
+
+    fun setProvinceState(provinceCode: String, state: ProvinceState) {
+        _provinceStates[provinceCode] = state
     }
 
     // 地理位置信息监听更新回调函数
@@ -60,7 +74,7 @@ class DiscoveryViewModel @Inject constructor(
                     result?.regeocodeAddress?.let { address ->
                         val adCode = address.adCode
                         Log.d("DiscoveryViewModel", "获取到行政区划代码: $adCode")
-
+                        setProvinceState(adCode, ProvinceState.EXPLORED)
                     }
                 } else {
                     Log.e("DiscoveryViewModel", "获取行政区划失败: $rCode")
@@ -72,4 +86,4 @@ class DiscoveryViewModel @Inject constructor(
             }
         })
     }
-} 
+}

@@ -39,7 +39,6 @@ fun MapScreen(
     val currentLocation by mapViewModel.currentLocation.collectAsState()
     val routePoints by routingViewModel.routePoints.collectAsState()
     val routeInfo by routingViewModel.routeInfo.collectAsState()
-    val boundaryPoints by discoveryViewModel.boundaryPoints.collectAsState()
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
     val cameraPositionState = rememberCameraPositionState()
     val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
@@ -56,11 +55,20 @@ fun MapScreen(
     LaunchedEffect(mapMode) {
         when (mapMode) {
             is MapViewModel.MapMode.Discovery -> {
-                discoveryViewModel.loadBoundary("810006")
-
+                val allProvinceCodes = listOf(
+                    "110000", "120000", "130000", "140000", "150000", 
+                    "210000", "220000", "230000", "310000", "320000", 
+                    "330000", "340000", "350000", "360000", "370000", 
+                    "410000", "420000", "430000", "440000", "450000", 
+                    "460000", "500000", "510000", "520000", "530000", 
+                    "540000", "610000", "620000", "630000", "640000", 
+                    "650000"
+                )
+                allProvinceCodes.forEach { code ->
+                    discoveryViewModel.loadBoundary(code)
+                }
             }
             is MapViewModel.MapMode.Routing -> {
-                // 加载路线数据
                 routingViewModel.searchRoute(
                     LatLng(39.909187, 116.397451),
                     LatLng(39.914759, 116.408333)
@@ -79,29 +87,32 @@ fun MapScreen(
                 aMapInstance = aMap 
             },
             onLocationChanged = { location ->
-                discoveryViewModel.locationUpdateCallback(location) }
+                discoveryViewModel.locationUpdateCallback(location)
+            }
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
-            aMapInstance?.let { aMap ->
-                when (mapMode) {
-                    is MapViewModel.MapMode.Discovery -> {
+            when (mapMode) {
+                is MapViewModel.MapMode.Discovery -> {
+                    discoveryViewModel.provinceStates.forEach { (code, state) ->
+                        val boundaryPoints = discoveryViewModel.provinceBoundaries[code] ?: emptyList()
                         DiscoveryLayer(
                             aMap = aMap,
-                            boundaryPoints = boundaryPoints
+                            boundaryPoints = boundaryPoints,
+                            provinceState = state
                         )
                     }
+                }
 
-                    is MapViewModel.MapMode.Routing -> {
-                        RoutingLayer(
-                            aMap = aMap,
-                            routePoints = routePoints,
-                        )
-                    }
+                is MapViewModel.MapMode.Routing -> {
+                    RoutingLayer(
+                        aMap = aMap,
+                        routePoints = routePoints,
+                    )
+                }
 
-                    is MapViewModel.MapMode.Default -> {
-                        // 默认地图模式，不需要额外图层
-                    }
+                is MapViewModel.MapMode.Default -> {
+                    // 默认地图模式，不需要额外图层
                 }
             }
 

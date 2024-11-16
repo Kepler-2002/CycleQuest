@@ -7,17 +7,26 @@ import androidx.compose.ui.graphics.toArgb
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.model.LatLng
 import com.amap.api.maps2d.model.PolygonOptions
+import com.cyclequest.application.viewmodels.ProvinceState
+
 import timber.log.Timber
 
 @Composable
 fun DiscoveryLayer(
     aMap: AMap,
     boundaryPoints: List<LatLng>,
-    strokeWidth: Float = 5f,
-    strokeColor: Color = Color(0xFF4CAF50),  // Material Green
-    fillColor: Color = Color(0x284CAF50),    // 透明度约15%的绿色
-    isLight : Boolean = false // 默认没有点亮
+    provinceState: ProvinceState,
+    strokeWidth: Float = 5f
 ) {
+    val strokeColor = when (provinceState) {
+        ProvinceState.DEFAULT -> Color(0xFFB0B0B0) // 半透明灰色
+        ProvinceState.EXPLORED -> Color(0xFF4CAF50) // 半透明绿色
+    }
+    val fillColor = when (provinceState) {
+        ProvinceState.DEFAULT -> Color(0x26B0B0B0) // 15% 透明度的灰色
+        ProvinceState.EXPLORED -> Color(0x4D4CAF50) // 30% 透明度的绿色
+    }
+
     if (boundaryPoints.isNotEmpty()) {
         DisposableEffect(boundaryPoints) {
             val polygon = PolygonOptions().apply {
