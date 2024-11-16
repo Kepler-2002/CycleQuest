@@ -23,5 +23,5 @@ data class PostEntity(
     @ColumnInfo(name = "updated_at")
     override val updatedAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "sync_status")
-    override val syncStatus: SyncStatus = SyncStatus.PENDING,
+    val syncStatus: SyncStatus = SyncStatus.PENDING,
 ) : BaseEntity 

@@ -54,12 +54,19 @@ import androidx.compose.material3.IconButton
 import androidx.lifecycle.ViewModel
 import com.cyclequest.application.ui.component.setting.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.cyclequest.application.ui.component.setting.GenderSelectionDialog
 import com.cyclequest.application.ui.component.setting.InputTextDialog
 import com.cyclequest.application.ui.component.setting.DashedDivider
+import com.cyclequest.application.viewmodels.RegistrationViewModel
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(
+    navController: NavController,
+    registrationViewModel: RegistrationViewModel
+    // profileViewModel: ProfileViewModel
+
+    ) {
     /*2024-10-28 13：46记录
     完成了用户ID列表项UI重建，未实现复制功能--bug
     完成了性别选择器的浮窗实现，未实现向数据库传送数据？
@@ -84,7 +91,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
     ps：为设置页--安全隐私列表项设置弹窗来阅读条款--文本滚动
     */
     var showCopyDialog by remember { mutableStateOf(false) }
-    var cycleQuestID by remember { mutableStateOf("001001001") }
+    var cycleQuestID by remember { mutableStateOf(registrationViewModel.getCurrentUserId() ?: "未登录") }
     var gender by remember { mutableStateOf("男") }
     var birthDate by remember { mutableStateOf("选择出生日期") }
     //此处默认值相当于文本框提示了
@@ -303,7 +310,29 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
 
         // UserQuit dialog -- 展示信息 恢复默认值？ ---未完成
         if (showQuitDialog) {
-            // Implement date selection dialog
+            AlertDialog(
+                onDismissRequest = { showQuitDialog = false },
+                title = { Text("退出登录") },
+                text = { Text("确定要退出登录吗？") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            registrationViewModel.logout()
+                            navController.navigate("login") {
+                                popUpTo("settings") { inclusive = true }
+                            }
+                            showQuitDialog = false
+                        }
+                    ) {
+                        Text("确定")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showQuitDialog = false }) {
+                        Text("取消")
+                    }
+                }
+            )
         }
 
     }
