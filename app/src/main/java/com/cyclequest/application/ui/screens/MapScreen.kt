@@ -33,7 +33,7 @@ import com.cyclequest.application.viewmodels.DiscoveryViewModel
 @Composable
 fun MapScreen(
     mapViewModel: MapViewModel = hiltViewModel(),
-    routingViewModel: RoutingViewModel = hiltViewModel(),
+//    routingViewModel: RoutingViewModel = hiltViewModel(),
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
 ) {
     val mapMode by mapViewModel.mapMode.collectAsState()
@@ -67,10 +67,10 @@ fun MapScreen(
                 // 获取当前位置坐标
 
                 // 加载路线数据
-                routingViewModel.searchRoute(
-                    LatLng(22.3383,114.1720),
-                    LatLng(22.3361,114.1750)
-                )
+//                routingViewModel.searchRoute(
+//                    LatLng(22.3383,114.1720),
+//                    LatLng(22.3361,114.1750)
+//                )
             }
             else -> {}
         }
@@ -97,7 +97,7 @@ fun MapScreen(
                     is MapViewModel.MapMode.Routing -> {
                         RoutingLayer(
                             aMap = aMap,
-//                            routePoints = routePoints,
+                            mapViewModel = mapViewModel,
                         )
                     }
 

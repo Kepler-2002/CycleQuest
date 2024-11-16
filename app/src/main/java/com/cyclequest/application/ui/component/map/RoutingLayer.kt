@@ -25,18 +25,21 @@ fun RoutingLayer(
 //    routePoints: List<LatLng> = emptyList(),
     strokeWidth: Float = 12f,
     strokeColor: Color = Color(0xFF2196F3),
+    mapViewModel: MapViewModel,
     routingViewModel: RoutingViewModel = hiltViewModel(),
 ) {
     val routePoints by routingViewModel.routePoints.collectAsState()
     val routeInfo by routingViewModel.routeInfo.collectAsState()
     val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
+    val isNavigationStarted by routingViewModel.isNavigationStarted.collectAsState()
 
     // 显示的搜索框
     Box(modifier = Modifier.fillMaxSize()) {
         SearchPanel(modifier = Modifier)
     }
-    // 有路线信息时
-    if (routePoints.isNotEmpty()) {
+
+    // 开始导航时
+    if (isNavigationStarted) {
         // 显示面板
         routeInfo?.let { info ->
             Box(modifier = Modifier.fillMaxSize()) {
@@ -50,8 +53,10 @@ fun RoutingLayer(
                 )
             }
         }
+    }
 
-        // 显示路线
+    // 显示路线(有routePoints时)
+    if (routePoints.isNotEmpty()) {
         DisposableEffect(routePoints) {
             // 阴影效果
             val shadowPolyline = aMap.addPolyline(PolylineOptions().apply {
