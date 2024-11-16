@@ -17,11 +17,32 @@ import kotlin.time.Duration.Companion.seconds
 import timber.log.Timber
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.room.Room
+import com.cyclequest.App
+import com.cyclequest.data.local.AppDatabase
+import com.cyclequest.data.local.dao.UserDao
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+    //在@Module中添加@provides方法，提供UserDao的实例，使得Hilt能为需要UserDao的地方提供实例
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase{
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "cyclequest_database"
+        ).build()
+    }
+    @Provides
+    @Singleton
+    fun provideUserDao(database: AppDatabase): UserDao {
+        return database.userDao()    // 返回 UserDao实例
+    }
+
+
     @Provides
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context {
