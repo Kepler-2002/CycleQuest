@@ -9,14 +9,20 @@ import androidx.lifecycle.viewModelScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
+import com.amap.api.services.core.LatLonPoint
+import com.amap.api.services.route.RouteSearch
+import com.amap.api.services.route.WalkRouteResult
+import com.cyclequest.domain.repository.AdministrativeDivisionRepository
 import com.cyclequest.service.location.LocationService
+import com.cyclequest.service.route.RouteService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import android.util.Log
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
@@ -24,52 +30,39 @@ class MapViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _currentLocation = MutableStateFlow<AMapLocation?>(null)
-    val currentLocation: StateFlow<AMapLocation?> = _currentLocation
-
-    private val _permissionGranted = MutableStateFlow(false)
-    val permissionGranted: StateFlow<Boolean> = _permissionGranted
-
-    private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
-    val cameraPosition: StateFlow<CameraPosition?> = _cameraPosition
-
-    private val _forceUpdateCamera = MutableStateFlow(0)
-    val forceUpdateCamera: StateFlow<Int> = _forceUpdateCamera
-
-    init {
-        checkLocationPermission()
+    sealed class MapMode {
+        object Default : MapMode()
+        object Routing : MapMode()
+        object Discovery : MapMode()
     }
 
-    private fun checkLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
+    private val _mapMode = MutableStateFlow<MapMode>(MapMode.Default)
+    val mapMode: StateFlow<MapMode> = _mapMode.asStateFlow()
+
+    private val _currentLocation = MutableStateFlow<LatLng?>(null)
+    val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
+
+    fun setMapMode(mode: String) {
+        _mapMode.value = when (mode) {
+            "探索" -> MapMode.Discovery
+            "路线" -> MapMode.Routing
+            else -> MapMode.Default
+        }
+    }
+
+    fun updateCurrentLocation() {
+        if (checkLocationPermission()) {
+            locationService.getCurrentLocation { location ->
+                location?.let {
+                    _currentLocation.value = LatLng(it.latitude, it.longitude)
+                }
+            }
+        }
+    }
+
+    private fun checkLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun getCurrentLocation() {
-        if (checkLocationPermission()) {
-            Timber.d("MapViewModel: 开始获取当前位置")
-            locationService.getCurrentLocation { location ->
-                Timber.d("MapViewModel: 收到位置更新 - $location")
-                location?.let {
-                    _currentLocation.value = it
-                    _cameraPosition.value = CameraPosition(
-                        LatLng(it.latitude, it.longitude),
-                        18f,  // 使用更大的缩放级别
-                        0f,
-                        0f
-                    )
-                }
-            }
-        } else {
-            Timber.d("MapViewModel: 缺少定位权限")
-        }
-        _forceUpdateCamera.value++
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        locationService.destroy()
-    }
 }
