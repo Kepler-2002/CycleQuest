@@ -16,9 +16,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+
 import com.amap.api.maps2d.AMap
-import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.MapView
+import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
 import com.amap.api.maps2d.model.MyLocationStyle
@@ -64,16 +65,6 @@ fun rememberMapViewWithLifecycle(): MapView {
     //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
     mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
 
-//    Test: polyline
-//    val latLngs: MutableList<LatLng> = ArrayList()
-//    latLngs.add(LatLng(39.999391, 116.135972))
-//    latLngs.add(LatLng(39.898323, 116.057694))
-//    latLngs.add(LatLng(39.900430, 116.265061))
-//    latLngs.add(LatLng(39.955192, 116.140092))
-//    mAMap.addPolyline(
-//        PolylineOptions().addAll
-//            (latLngs).width(10f).color(Color.argb(255, 1, 1, 1))
-//    )
 
 //    TODO: 引入DiscoveryLayer与RoutingLayer，需要传入mAMap变量，控制自定义图层绘制
 

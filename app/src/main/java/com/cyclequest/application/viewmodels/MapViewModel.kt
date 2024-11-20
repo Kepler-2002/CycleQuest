@@ -65,4 +65,11 @@ class MapViewModel @Inject constructor(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
+    // Function to get current location as LatLng
+    fun getCurrentLocation(): LatLng? {
+        updateCurrentLocation()
+
+        return _currentLocation.value
+    }
 }

@@ -23,6 +23,9 @@ class RoutingViewModel @Inject constructor(
     private val _routeInfo = MutableStateFlow<RouteService.RouteInfo?>(null)
     val routeInfo: StateFlow<RouteService.RouteInfo?> = _routeInfo.asStateFlow()
 
+    private val _isNavigationStarted = MutableStateFlow(false)
+    val isNavigationStarted: StateFlow<Boolean> = _isNavigationStarted.asStateFlow()
+
     private val _isRouteInfoMinimized = MutableStateFlow(false)
     val isRouteInfoMinimized: StateFlow<Boolean> = _isRouteInfoMinimized.asStateFlow()
 
@@ -59,5 +62,13 @@ class RoutingViewModel @Inject constructor(
 
     fun toggleRouteInfoMinimized() {
         _isRouteInfoMinimized.value = !_isRouteInfoMinimized.value
+    }
+
+    fun NaviFlag_Set() {
+        _isNavigationStarted.value = true
+    }
+
+    fun NaviFlag_Reset() {
+        _isNavigationStarted.value = false
     }
 } 
