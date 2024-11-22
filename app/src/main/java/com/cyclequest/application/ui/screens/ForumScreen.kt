@@ -54,13 +54,12 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                     try {
                         navController.navigate("CreatePostScreen")
                     } catch (e: Exception) {
-                        // 处理异常，例如记录日志
                         Log.e("ForumScreen", "Navigation error: ${e.message}")
                     }
                 },
                 modifier = Modifier.size(72.dp),
-                containerColor = Color.Green,
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Text(
                     "+",
@@ -76,16 +75,6 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-//            // Status tabs
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp)
-//            ) {
-//                Text("正在进行", color = Color.Green, fontWeight = FontWeight.Bold)
-//                Spacer(modifier = Modifier.width(16.dp))
-//                Text("即将上新", color = Color.Gray)
-//            }
 
             // My awards space
             Text(
@@ -105,28 +94,11 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                 }
             }
 
-//            // My post space
-//            Text(
-//                "我的帖子",
-//                modifier = Modifier.padding(16.dp),
-//                style = MaterialTheme.typography.titleMedium
-//            )
-//
-//            // Posts row
-//            LazyRow(
-//                modifier = Modifier.padding(horizontal = 16.dp),
-//                horizontalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                items(3) { index ->
-//                    PostItem(index)
-//                }
-//            }
-
             // Category tabs
             val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
 
             TabRow(selectedTabIndex = selectedTabIndex) {
-                listOf("推荐", "我的帖子").forEachIndexed { index, title ->
+                listOf("所有奖牌", "帖子空间").forEachIndexed { index, title ->
                     Tab(
                         selected = index == selectedTabIndex,
                         onClick = { viewModel.selectTab(index) },
@@ -155,14 +127,6 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                                     modifier = Modifier.padding(16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-//                                    val iconResId = when (achievement.iconUrl) {
-//                                        "achievements/distance_bronze.png" -> R.drawable.distance_bronze
-//                                        "achievements/distance_silver.png" -> R.drawable.distance_silver
-//                                        "achievements/distance_gold.png" -> R.drawable.distance_gold
-//                                        "achievements/explorer_bronze.png" -> R.drawable.explorer_bronze
-//                                        "achievements/explorer_gold.png" -> R.drawable.explorer_gold
-//                                        else -> R.drawable.default_icon // 默认图标
-//                                    }
                                     Image(
                                         painter = painterResource(id = achievement.resourceId), // 使用iconUrl
                                         contentDescription = null,
