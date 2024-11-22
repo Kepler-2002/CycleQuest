@@ -12,6 +12,10 @@ interface PlannedRouteDao {
     @Insert
     suspend fun insertRoute(plannedRoute: PlannedRouteEntity)
 
+    // 同步车控页面数据使用的查询方法
+    @Query("SELECT * FROM planned_route WHERE userId = :userId ORDER BY createdAt DESC LIMIT 1")
+    fun getLatestRouteFlow(userId: String): Flow<PlannedRouteEntity?>
+
 //    @Update
 //    suspend fun updateRoute(plannedRoute: PlannedRouteEntity)
 //

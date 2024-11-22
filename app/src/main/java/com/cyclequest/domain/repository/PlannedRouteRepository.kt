@@ -6,6 +6,7 @@ import com.cyclequest.core.network.ApiResult
 import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.entity.PlannedRouteEntity
 import com.cyclequest.domain.model.PlannedPath
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.log
@@ -14,6 +15,12 @@ import kotlin.math.log
 class PlannedRouteRepository @Inject constructor(
     private val plannedRouteDao: PlannedRouteDao
 ){
+
+    // 车控要用的数据流
+    fun getLatestRoute(userId: String): Flow<PlannedRouteEntity?> {
+        return plannedRouteDao.getLatestRouteFlow(userId)
+    }
+
     fun list2D2String(list: List<List<Double>>): String {
         return list.joinToString(prefix = "[", postfix = "]", separator = ", ") { 
             "[${it[0]}, ${it[1]}]" 
