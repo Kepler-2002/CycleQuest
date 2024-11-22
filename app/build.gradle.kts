@@ -208,7 +208,12 @@ dependencies {
     // Retrofit Scalars 转换器
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     testImplementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-    
+
+    //Forum Post UI
+    implementation ("androidx.compose.ui:ui:1.3.0")
+    implementation ("androidx.compose.material3:material3:1.0.0") // or the latest version
+    implementation ("androidx.compose.material:material-icons-extended:1.3.0") // Add this line if not present
+
 
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")

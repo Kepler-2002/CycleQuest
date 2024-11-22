@@ -20,6 +20,7 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.cyclequest.App
 import com.cyclequest.data.local.AppDatabase
+import com.cyclequest.data.local.dao.PostDao
 import com.cyclequest.data.local.dao.UserDao
 import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -40,6 +41,11 @@ object DatabaseModule {
     @Singleton
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()    // 返回 UserDao实例
+    }
+
+    @Provides
+    fun providePostDao(database: AppDatabase): PostDao {
+        return database.postDao()
     }
 
 

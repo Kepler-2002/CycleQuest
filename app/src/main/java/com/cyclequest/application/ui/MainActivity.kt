@@ -82,7 +82,7 @@ fun MainScreen() {
             composable("单车控制") { BicycleControlScreen() }
             composable("地图") { MapScreen() }
             composable("论坛") { ForumScreen(navController) }
-            composable("设置") { SettingsScreen() }
+            composable("设置") { SettingsScreen(navController) }
             composable("CreatePostScreen") { CreatePostScreen(onNavigateBack = { navController.popBackStack() }) }
         }
     }

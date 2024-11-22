@@ -49,16 +49,51 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.cyclequest.application.viewmodels.RegistrationViewModel
+import com.cyclequest.data.local.entity.PostStatus
+import com.cyclequest.data.local.preferences.UserPreferences
+import com.cyclequest.domain.model.Post
+import com.cyclequest.domain.repository.PostRepository
 
-
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     onNavigateBack: () -> Unit,
-    viewModel: CreatePostViewModel = viewModel()
+    viewModel: CreatePostViewModel = hiltViewModel()
 ) {
     val darkColorScheme = darkColorScheme()
+
+    var selectedImagePath by remember { mutableStateOf<String?>(null) }
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    var postText by remember { mutableStateOf("") }
+
+    fun handleSubmit() {
+        // 创建一个 Post 对象
+        val post = Post(
+            postId = "", // 这里可以留空，数据库会自动生成
+            userId = viewModel.userPreferences.getUser()?.id ?: "", // 获取当前用户 ID
+            title = "帖子标题", // 你可以根据需要设置标题
+            content = postText,
+            viewCount = 0,
+            likeCount = 0,
+            commentCount = 0,
+            isTop = false,
+            status = PostStatus.NORMAL, // 根据需要设置状态
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+
+        // 调用 ViewModel 的 savePost 方法
+        viewModel.savePost(post)
+
+        // 提交后清空输入框并返回
+        postText = ""
+        onNavigateBack() // 返回到 ForumScreen
+    }
 
     Surface(
         color = Color.Black,
@@ -84,7 +119,7 @@ fun CreatePostScreen(
                 }
 
                 TextButton(
-                    onClick = { /* TODO: Implement post action */ },
+                    onClick = { handleSubmit() },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = Color.White.copy(alpha = 0.6f)
                     )
@@ -94,8 +129,10 @@ fun CreatePostScreen(
             }
 
             TextField(
-                value = TextFieldValue(viewModel.postText.value),
-                onValueChange = { newText: TextFieldValue -> viewModel.updatePostText(newText.text) },
+                value = postText,
+                onValueChange = { newText -> 
+                    postText = newText // 更新本地状态
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -116,21 +153,28 @@ fun CreatePostScreen(
                 shape = MaterialTheme.shapes.small
             )
 
-            // Image Selection Box
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color.DarkGray.copy(alpha = 0.3f))
-                    .clickable { /* TODO: Implement image selection */ },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add Image",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+//            // Image Selection Box
+//            Box(
+//                modifier = Modifier
+//                    .size(100.dp)
+//                    .background(Color.DarkGray.copy(alpha = 0.3f))
+//                    .clickable {
+//                        // TODO: 实现图片选择逻辑
+//                        // 例如，使用图片选择器并更新 selectedImagePath
+//                    },
+//                contentAlignment = Alignment.Center
+//            ) {
+////                selectedImagePath?.let {
+////                    Image(painter = painterResource(it), contentDescription = "Selected Image", contentScale = ContentScale.Crop)
+////                } ?: run {
+////                    Icon(
+////                        Icons.Default.Add,
+////                        contentDescription = "Add Image",
+////                        tint = Color.White,
+////                        modifier = Modifier.size(32.dp)
+////                    )
+////                }
+//            }
 
             // Bottom Options
             Column(
@@ -197,6 +241,19 @@ fun CreatePostScreen(
                 )
             }
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("提示") },
+            text = { Text("请输入文本") },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("确定")
+                }
+            }
+        )
     }
 }
 

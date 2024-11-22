@@ -1,5 +1,6 @@
 package com.cyclequest.application.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,10 +27,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cyclequest.domain.model.Post
+import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForumScreen(navController: NavController, viewModel: ForumViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltViewModel()) {
 
     Scaffold(
         topBar = {
@@ -44,7 +48,14 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = androi
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("CreatePostScreen")  },
+                onClick = { 
+                    try {
+                        navController.navigate("CreatePostScreen")  
+                    } catch (e: Exception) {
+                        // 处理异常，例如记录日志
+                        Log.e("ForumScreen", "Navigation error: ${e.message}")
+                    }
+                },
                 modifier = Modifier.size(72.dp),
                 containerColor = Color.Green,
                 contentColor = Color.White
@@ -138,18 +149,41 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = androi
                 }
                 1 -> {
                     // My posts content
+                    val userPosts by viewModel.userPostsFlow.collectAsState(initial = emptyList())
+
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(3) { index ->
-                            PostItem(index)
+                        items(userPosts) { post ->
+                            PostItem(post = Post(
+                                postId = post.postId,
+                                userId = post.userId,
+                                title = post.title,
+                                content = post.content,
+                                viewCount = post.viewCount,
+                                likeCount = post.likeCount,
+                                commentCount = post.commentCount,
+                                isTop = post.isTop,
+                                status = post.status,
+                                createdAt = post.createdAt,
+                                updatedAt = post.updatedAt
+                            ))
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PostItem(post: Post) {
+    // 显示帖子内容，例如标题和内容
+    Column {
+        Text(text = post.title, fontWeight = FontWeight.Bold)
+        Text(text = post.content)
     }
 }
 

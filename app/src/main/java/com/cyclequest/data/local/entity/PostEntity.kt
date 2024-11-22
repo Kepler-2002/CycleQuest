@@ -11,7 +11,7 @@ data class PostEntity(
     @PrimaryKey
     val postId: String,
     val userId: String,
-    val title: String,
+    val title: String = "",
     val content: String,
     val viewCount: Int = 0,
     val likeCount: Int = 0,

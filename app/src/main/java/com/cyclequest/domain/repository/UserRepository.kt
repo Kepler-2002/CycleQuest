@@ -24,7 +24,8 @@ repository方法返回值类型 是userDao定义的getter类方法通过mapper�
 */
 
 @Singleton
-class UserRepository @Inject constructor(
+class
+UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     // private val syncManager: SyncManager,
