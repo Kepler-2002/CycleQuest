@@ -14,11 +14,11 @@ import timber.log.Timber
 
 /**
  * LocationService 提供了两种主要的位置服务模式：
- * 
+ *
  * 1. 单次位置获取：
  *    使用 getCurrentLocation 方法获取当前位置的一次性快照。
  *    适用于用户手动请求当前位置的场景。
- * 
+ *
  * 2. 持续位置更新：
  *    适用于导航或轨迹追踪等需要持续监控位置变化的场景。
  *    使用流程如下：
@@ -26,7 +26,7 @@ import timber.log.Timber
  *    b. 通过 currentLocation StateFlow 监听位置变化
  *    c. 如需调整更新频率，使用 setLocationInterval(interval: Long)
  *    d. 完成后调用 stopLocationUpdates() 停止位置更新
- * 
+ *
  * 注意：在使用完毕后，特别是在 ViewModel 的 onCleared() 方法中，
  * 应调用 destroy() 方法以释放资源。
  */

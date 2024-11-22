@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.amap.api.maps2d.model.LatLng
 import android.util.Log
+import com.google.gson.JsonArray
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,19 +35,20 @@ class AdministrativeDivisionRepository @Inject constructor(
                 ?: throw IllegalStateException("features array is null")
             
             val geometry = features[0].asJsonObject.getAsJsonObject("geometry")
-
+            val geometryType = geometry.get("type").asString
             val boundaryPoints = mutableListOf<LatLng>()
             
-            // Polygon 结构: coordinates -> [外环] -> [坐标点]
             val coordinates = geometry.getAsJsonArray("coordinates")
-                .get(0).asJsonArray  // 获取外环坐标点数组
-
-
-            for (i in 0 until coordinates.size()) {
-                val point = coordinates[i].asJsonArray
-                val lng = point[0].asDouble
-                val lat = point[1].asDouble
-                boundaryPoints.add(LatLng(lat, lng))
+            
+            when (geometryType) {
+                "Polygon" -> {
+                    // 处理Polygon类型
+                    processPolygonCoordinates(coordinates[0].asJsonArray, boundaryPoints)
+                }
+                "MultiPolygon" -> {
+                    // 处理MultiPolygon类型
+                    processPolygonCoordinates(coordinates[0].asJsonArray[0].asJsonArray, boundaryPoints)
+                }
             }
             
             Log.d("AdminDivisionRepo", "解析完成，边界点数量: ${boundaryPoints.size}")
@@ -54,6 +56,15 @@ class AdministrativeDivisionRepository @Inject constructor(
         } catch (e: Exception) {
             Log.e("AdminDivisionRepo", "解析JSON失败", e)
             throw e
+        }
+    }
+
+    private fun processPolygonCoordinates(coordinates: JsonArray, boundaryPoints: MutableList<LatLng>) {
+        for (i in 0 until coordinates.size()) {
+            val point = coordinates[i].asJsonArray
+            val lng = point[0].asDouble
+            val lat = point[1].asDouble
+            boundaryPoints.add(LatLng(lat, lng))
         }
     }
 }
