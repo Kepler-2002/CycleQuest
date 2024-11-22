@@ -11,11 +11,11 @@ import com.cyclequest.domain.model.sport.RideStatus
 @Entity(
     tableName = "ride_record",
     foreignKeys = [
-        ForeignKey(entity = UserEntity::class, parentColumns = ["id"], childColumns = ["userId"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = UserEntity::class, parentColumns = ["id"], childColumns = ["userId"], onDelete = ForeignKey.CASCADE)
 //        ForeignKey(entity = BicycleEntity::class, parentColumns = ["id"], childColumns = ["bicycleId"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(entity = PlannedRouteEntity::class, parentColumns = ["_id"], childColumns = ["plannedRouteId"], onDelete = ForeignKey.CASCADE)
+//        ForeignKey(entity = PlannedRouteEntity::class, parentColumns = ["_id"], childColumns = ["plannedRouteId"], onDelete = ForeignKey.CASCADE)
     ],
-    indices = [Index(value = ["userId"]), Index(value = ["bicycleId"]), Index(value = ["plannedRouteId"])]
+    indices = [Index(value = ["userId"])]
 )
 data class RideRecordEntity(
     @PrimaryKey(autoGenerate = true)
@@ -24,7 +24,7 @@ data class RideRecordEntity(
     val userId: String,
     val bicycleId: String?,
     val type: RideType,
-    val plannedRouteId: String?,
+    val routeId: String?,
     val startTime: Long,
     val endTime: Long?,
     val distance: Float,
