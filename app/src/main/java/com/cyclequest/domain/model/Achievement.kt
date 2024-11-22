@@ -8,7 +8,7 @@ data class Achievement(
     val description: String,
     val type: AchievementType,
     val requirement: Double,
-    val iconUrl: String,
+    val resourceId: Int,
     val createdAt: Long,
     val updatedAt: Long
 ) 

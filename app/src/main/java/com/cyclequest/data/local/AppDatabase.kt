@@ -21,7 +21,7 @@ import com.cyclequest.data.local.DatabaseConverters
         CommentEntity::class,
         CommentLikeEntity::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = true
 )
 @TypeConverters(DatabaseConverters::class)
