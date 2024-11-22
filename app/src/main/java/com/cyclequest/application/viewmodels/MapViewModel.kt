@@ -26,9 +26,14 @@ import android.util.Log
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val locationService: LocationService,
+    val locationService: LocationService,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    init {
+        // Initialization code can go here
+        updateCurrentLocation()
+    }
 
     sealed class MapMode {
         object Default : MapMode()
@@ -68,7 +73,7 @@ class MapViewModel @Inject constructor(
 
     // Function to get current location as LatLng
     fun getCurrentLocation(): LatLng? {
-        updateCurrentLocation()
+//        updateCurrentLocation()
 
         return _currentLocation.value
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -36,6 +37,7 @@ import com.cyclequest.R
 import com.cyclequest.application.ui.component.setting.ProfileViewModel
 import com.cyclequest.application.viewmodels.RegistrationModule
 import com.cyclequest.application.viewmodels.RegistrationViewModel
+import com.cyclequest.application.viewmodels.RoutingViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -115,7 +117,17 @@ fun MainScreen() {
                     registrationViewModel = registrationViewModel
                 )
             }
-            composable("单车控制") { BicycleControlScreen() }
+            composable("单车控制") {
+                currentUser?.id?.let { userId ->
+                    BicycleControlScreen(
+                        userId = userId,
+                        viewModel = hiltViewModel()
+                    )
+                } ?: run {
+                    // Handle case when user is not logged in
+                    navController.navigate("login")
+                }
+            }
             composable("地图") { MapScreen() }
             composable("论坛") { ForumScreen(navController) }
             composable("CreatePostScreen") { CreatePostScreen(onNavigateBack = { navController.popBackStack() }) }

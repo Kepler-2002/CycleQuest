@@ -54,7 +54,10 @@ fun SearchPanel(
                 val location = result.geocodeAddressList[0].latLonPoint
                 latitude = location.latitude
                 longitude = location.longitude
-                Log.i("Destination", "Latitude: $latitude, Longitude: $longitude")
+
+                Log.i("Geocode", "rCode=$rCode")
+                Log.i("Geocode", "Latitude: $latitude, Longitude: $longitude")
+                
 
                 // 加载路线数据
                 mapViewModel.getCurrentLocation()?.let {
@@ -102,6 +105,8 @@ fun SearchPanel(
                         // Trigger geocoding when the search button is clicked
                         val query = GeocodeQuery(searchQuery, "香港") // Replace with the appropriate city if needed
                         geocodeSearch.getFromLocationNameAsyn(query)
+
+                        routingViewModel.NaviFlag_Reset()
                     },
                     modifier = Modifier
                         .size(32.dp)
@@ -135,6 +140,9 @@ fun SearchPanel(
                             registrationViewModel.getCurrentUserId()?.let { userId ->
                                 routingViewModel.saveRoute(userId)
                             }
+
+                            // #ifdef simulate
+                            routingViewModel.simNavi_Set()
 
                             // Last: change state flag
                             isDestinationAvail = false

@@ -237,4 +237,3 @@ fun PostItem(post: Post, imageResId: Int) {
         Text(text = post.content)
     }
 }
-

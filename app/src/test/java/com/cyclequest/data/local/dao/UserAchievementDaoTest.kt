@@ -5,7 +5,7 @@ import com.cyclequest.data.local.entity.UserAchievementEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 class UserAchievementDaoTest : TestDatabase() {
     private val userAchievementDao by lazy { getDatabase().userAchievementDao() }
