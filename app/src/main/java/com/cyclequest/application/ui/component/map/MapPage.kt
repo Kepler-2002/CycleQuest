@@ -149,18 +149,56 @@ fun rememberMapViewWithLifecycle(
                 // 探索模式的模拟定位
                 locationService.stopLocationUpdates()
                 simulationJob = scope.launch {
-                    val startLocation = lastLocation ?: LatLng(22.31251, 114.1928467)
-                    var currentLat = startLocation.latitude
-                    var currentLng = startLocation.longitude
+                    // 使用当前真实位置作为起点
+                    val startLocation = lastLocation ?: run {
+                        var initialLocation: LatLng? = null
+                        locationService.getCurrentLocation { location ->
+                            location?.let {
+                                initialLocation = LatLng(it.latitude, it.longitude)
+                            }
+                        }
+                        // 等待获取位置
+                        while (initialLocation == null) {
+                            delay(100)
+                        }
+                        initialLocation!!
+                    }
+                    
+                    // 预设香港各区的关键点
+                    val keyLocations = listOf(
+                        startLocation,  // 起始位置
+                        LatLng(22.3193, 114.1694),  // 尖沙咀
+                        LatLng(22.2783, 114.1747),  // 中环
+                        LatLng(22.2855, 114.1577),  // 西环
+                        LatLng(22.2824, 114.2146),  // 鲗鱼涌
+                        LatLng(22.3119, 114.2252),  // 观塘
+                        LatLng(22.3706, 114.1200),  // 荃湾
+                        LatLng(22.3868, 114.2707),  // 西贡
+                        LatLng(22.4465, 114.1651),  // 大埔
+                        LatLng(22.3810, 114.1872)   // 沙田
+                    ).distinct() // 确保不会重复经过起始点
 
-                    while (isActive) {
-                        currentLat += 0.0005
-                        currentLng += 0.0005
-                        val simulatedLocation = LatLng(currentLat, currentLng)
-                        locationMarker?.position = simulatedLocation
-                        mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(simulatedLocation, currentZoom))
-                        onLocationChanged(simulatedLocation)
-                        delay(1000)
+                    var currentLocation = startLocation
+                    for (targetLocation in keyLocations) {
+                        if (targetLocation == startLocation) continue
+                        
+                        // 计算从当前位置到目标位置的步数
+                        val steps = 50
+                        val latStep = (targetLocation.latitude - currentLocation.latitude) / steps
+                        val lngStep = (targetLocation.longitude - currentLocation.longitude) / steps
+
+                        // 逐步移动到目标位置
+                        for (i in 0..steps) {
+                            val simulatedLocation = LatLng(
+                                currentLocation.latitude + latStep * i,
+                                currentLocation.longitude + lngStep * i
+                            )
+                            locationMarker?.position = simulatedLocation
+                            mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(simulatedLocation, currentZoom))
+                            onLocationChanged(simulatedLocation)
+                            delay(1000)
+                        }
+                        currentLocation = targetLocation
                     }
                 }
             }
