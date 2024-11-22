@@ -13,10 +13,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import com.cyclequest.domain.model.Achievement
 
 @Composable
 fun AchievementDialog(
+    navController: NavController,
     achievement: Achievement,
     onDismiss: () -> Unit,
     onShare: () -> Unit,
@@ -90,7 +92,9 @@ fun AchievementDialog(
 
                     // 分享按钮
                     Button(
-                        onClick = onShare,
+                        onClick = {
+                            navController.navigate("CreatePostScreen/${achievement.id}")
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Row(

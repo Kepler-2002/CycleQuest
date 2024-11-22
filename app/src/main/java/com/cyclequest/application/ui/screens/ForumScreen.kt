@@ -200,6 +200,7 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                                 userId = postEntity.userId,
                                 title = postEntity.title,
                                 content = postEntity.content,
+                                achievementId = postEntity.achievementId,
                                 viewCount = postEntity.viewCount,
                                 likeCount = postEntity.likeCount,
                                 commentCount = postEntity.commentCount,
