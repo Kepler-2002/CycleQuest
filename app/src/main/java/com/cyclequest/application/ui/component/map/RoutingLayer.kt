@@ -40,6 +40,7 @@ fun RoutingLayer(
     val routeInfo by routingViewModel.routeInfo.collectAsState()
     val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
     val isNavigationStarted by routingViewModel.isNavigationStarted.collectAsState()
+    val isSimulateNaviOn by routingViewModel.isSimulateNaviOn.collectAsState()
 
     // 显示的搜索框
     Box(modifier = Modifier.fillMaxSize()) {

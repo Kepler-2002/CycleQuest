@@ -102,6 +102,8 @@ fun SearchPanel(
                         // Trigger geocoding when the search button is clicked
                         val query = GeocodeQuery(searchQuery, "香港") // Replace with the appropriate city if needed
                         geocodeSearch.getFromLocationNameAsyn(query)
+
+                        routingViewModel.NaviFlag_Reset()
                     },
                     modifier = Modifier
                         .size(32.dp)
@@ -135,6 +137,9 @@ fun SearchPanel(
                             registrationViewModel.getCurrentUserId()?.let { userId ->
                                 routingViewModel.saveRoute(userId)
                             }
+
+                            // #ifdef simulate
+                            routingViewModel.simNavi_Set()
 
                             // Last: change state flag
                             isDestinationAvail = false

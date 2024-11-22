@@ -37,6 +37,9 @@ class RoutingViewModel @Inject constructor(
     private val _isRouteInfoMinimized = MutableStateFlow(false)
     val isRouteInfoMinimized: StateFlow<Boolean> = _isRouteInfoMinimized.asStateFlow()
 
+    private val _isSimulateNaviOn = MutableStateFlow(false)
+    val isSimulateNaviOn: StateFlow<Boolean> = _isSimulateNaviOn.asStateFlow()
+
     init {
         viewModelScope.launch {
             routeService.rideRouteResult.collect { result ->
@@ -78,6 +81,14 @@ class RoutingViewModel @Inject constructor(
 
     fun NaviFlag_Reset() {
         _isNavigationStarted.value = false
+    }
+
+    fun simNavi_Set() {
+        _isSimulateNaviOn.value = true
+    }
+
+    fun simNavi_Reset() {
+        _isSimulateNaviOn.value = false
     }
 
     fun LatLng2doubleList(points: List<LatLng>): List<List<Double>> {
