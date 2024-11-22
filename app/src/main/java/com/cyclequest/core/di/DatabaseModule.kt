@@ -20,12 +20,14 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.cyclequest.App
 import com.cyclequest.data.local.AppDatabase
+import com.cyclequest.data.local.dao.PostDao
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.dao.AchievementDao
 import com.cyclequest.data.local.dao.RideRecordDao
 import com.cyclequest.data.local.dao.UserAchievementDao
 import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
+import com.cyclequest.data.local.dao.UserExploredRegionDao
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Module
@@ -48,6 +50,18 @@ object DatabaseModule {
     @Singleton
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()    // 返回 UserDao实例
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserExploredRegionDao(database: AppDatabase): UserExploredRegionDao {
+        return database.userExploredRegionDao()    // Provide UserDisplayedAchievementDao instance
+    }
+
+    @Provides
+    @Singleton
+    fun providePostDao(database: AppDatabase): PostDao {
+        return database.postDao()
     }
 
     @Provides

@@ -41,8 +41,14 @@ class RoutingViewModel @Inject constructor(
     private val _isRouteInfoMinimized = MutableStateFlow(false)
     val isRouteInfoMinimized: StateFlow<Boolean> = _isRouteInfoMinimized.asStateFlow()
 
+    // 模拟导航使能标志，暂未使用
     private val _isSimulateNaviOn = MutableStateFlow(false)
     val isSimulateNaviOn: StateFlow<Boolean> = _isSimulateNaviOn.asStateFlow()
+
+    // 车控用的状态管理
+    private val _latestRouteStats = MutableStateFlow<Pair<Int, Int>>(Pair(0, 0))
+    val latestRouteStats: StateFlow<Pair<Int, Int>> = _latestRouteStats.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -137,6 +143,16 @@ class RoutingViewModel @Inject constructor(
 
                 // 延迟一秒
                 delay(1000)
+            }
+        }
+    }
+    // 车控用的
+    fun observeLatestRoute(userId: String) {
+        viewModelScope.launch {
+            plannedRouteRepository.getLatestRoute(userId).collect { route ->
+                route?.let {
+                    _latestRouteStats.value = Pair(it.distance, it.duration)
+                }
             }
         }
     }

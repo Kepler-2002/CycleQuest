@@ -26,7 +26,7 @@ import android.util.Log
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val locationService: LocationService,
+    val locationService: LocationService,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
