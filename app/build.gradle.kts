@@ -4,7 +4,6 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
-
 android {
     namespace = "com.cyclequest"
     compileSdk = 34
@@ -213,6 +212,10 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 
+    // Compose Animation
+    implementation("androidx.compose.animation:animation:1.7.5")
+    implementation("androidx.compose.animation:animation-core:1.7.5")
+
 }
 
 kapt {
@@ -222,3 +225,4 @@ kapt {
         arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
     }
 }
+

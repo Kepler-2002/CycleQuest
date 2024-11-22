@@ -29,9 +29,10 @@ import com.amap.api.maps2d.model.PolylineOptions
 fun MapPage(
     modifier: Modifier = Modifier,
     cameraPositionState: CameraPositionState = rememberCameraPositionState(),
-    onMapReady: (AMap) -> Unit
+    onMapReady: (AMap) -> Unit,
+    onLocationChanged: (LatLng) -> Unit
 ) {
-    val mapView = rememberMapViewWithLifecycle()
+    val mapView = rememberMapViewWithLifecycle(onLocationChanged)
 
     DisposableEffect(mapView) {
         onMapReady(mapView.map)
@@ -48,7 +49,7 @@ fun MapPage(
 }
 
 @Composable
-fun rememberMapViewWithLifecycle(): MapView {
+fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val mapView = remember { MapView(context) }
@@ -65,6 +66,11 @@ fun rememberMapViewWithLifecycle(): MapView {
     //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
     mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
 
+    mAMap.setOnMyLocationChangeListener { location ->
+        location?.let {
+            onLocationChanged(LatLng(it.latitude, it.longitude))
+        }
+    }
 
 //    TODO: 引入DiscoveryLayer与RoutingLayer，需要传入mAMap变量，控制自定义图层绘制
 

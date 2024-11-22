@@ -31,7 +31,7 @@ class DiscoveryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _provinceStates = mutableStateMapOf<String, ProvinceState>()
-    val provinceStates: Map<String, ProvinceState> get() = _provinceStates
+    val provinceStates = _provinceStates as Map<String, ProvinceState>
 
     private val _provinceBoundaries = mutableStateMapOf<String, List<LatLng>>()
     val provinceBoundaries: Map<String, List<LatLng>> get() = _provinceBoundaries

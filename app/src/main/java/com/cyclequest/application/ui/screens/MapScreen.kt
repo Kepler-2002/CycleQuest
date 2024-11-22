@@ -97,9 +97,9 @@ fun MapScreen(
                 Log.d("MapScreen", "地图初始化完成")
                 aMapInstance = aMap
             },
-//            onLocationChanged = { location ->
-//                discoveryViewModel.locationUpdateCallback(location)
-//            }
+            onLocationChanged = { location ->
+                discoveryViewModel.locationUpdateCallback(location)
+            }
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
