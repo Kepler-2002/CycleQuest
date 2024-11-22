@@ -23,6 +23,7 @@ import com.cyclequest.data.local.AppDatabase
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.dao.AchievementDao
+import com.cyclequest.data.local.dao.PostDao
 import com.cyclequest.data.local.dao.UserAchievementDao
 import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,6 +49,13 @@ object DatabaseModule {
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()    // 返回 UserDao实例
     }
+
+    @Provides
+    @Singleton
+    fun providePostDao(database: AppDatabase): PostDao {
+        return database.postDao() // 返回 PostDao 实例
+    }
+
 
     @Provides
     @Singleton

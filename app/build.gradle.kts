@@ -88,6 +88,11 @@ android {
 }
 
 dependencies {
+
+    //hhc
+    implementation ("androidx.compose.material:material-icons-extended:1.0.0") // 确保使用最新版本
+
+
     // livedata
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
     implementation("androidx.compose.material3:material3:1.3.1")
