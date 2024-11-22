@@ -18,7 +18,6 @@ import com.cyclequest.domain.model.Achievement
 
 @Composable
 fun AchievementDialog(
-    navController: NavController,
     achievement: Achievement,
     onDismiss: () -> Unit,
     onShare: () -> Unit,
@@ -92,9 +91,7 @@ fun AchievementDialog(
 
                     // 分享按钮
                     Button(
-                        onClick = {
-                            navController.navigate("CreatePostScreen/${achievement.id}")
-                        },
+                        onClick = onShare,
                         modifier = Modifier.weight(1f)
                     ) {
                         Row(
