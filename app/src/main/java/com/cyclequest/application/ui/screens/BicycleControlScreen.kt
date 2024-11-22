@@ -13,14 +13,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialogDefaults.containerColor
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cyclequest.application.viewmodels.RoutingViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun BicycleControlScreen() {
+fun BicycleControlScreen(
+    userId: String,
+    viewModel: RoutingViewModel = hiltViewModel()
+) {
+    val routeStates by viewModel.latestRouteStats.collectAsState()
+
+    LaunchedEffect(userId) {
+        viewModel.observeLatestRoute(userId)
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         // 顶部蓝牙状态栏
         var isBluetoothConnected by remember { mutableStateOf(true) }
@@ -83,12 +96,11 @@ fun BicycleControlScreen() {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("骑行里程", style = MaterialTheme.typography.bodyLarge)
-                Text("28 km", style = MaterialTheme.typography.headlineLarge)
+                Text("${routeStates.first} km", style = MaterialTheme.typography.headlineLarge)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                //文本要从---获取里程数
                 Text("骑行时长", style = MaterialTheme.typography.bodyLarge)
-                Text("75 min", style = MaterialTheme.typography.headlineLarge)
+                Text("${routeStates.second} min", style = MaterialTheme.typography.headlineLarge)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("灯光电量", style = MaterialTheme.typography.bodyLarge)

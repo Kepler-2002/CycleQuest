@@ -21,22 +21,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.cyclequest.R
 
 
 @Composable
 fun AwardItem(index: Int) {
+    val iconResId = when (index) {
+        0 -> R.drawable.distance_bronze // 显示铜牌图标
+        1 -> R.drawable.distance_silver // 显示银牌图标
+        else -> android.R.drawable.ic_menu_gallery // 默认图标
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
-            painter = painterResource(id = android.R.drawable.ic_menu_gallery), // Replace with actual image resource
+            painter = painterResource(id = iconResId),
             contentDescription = null,
             modifier = Modifier.size(60.dp),
             contentScale = ContentScale.Fit
         )
         Text(
             when (index) {
-                0 -> "活动1"
-                1 -> "活动2"
-                2 -> "活动3"
+                0 -> "初级骑手"
+                1 -> "中级骑手"
                 else -> "活动${index + 1}"
             },
             style = MaterialTheme.typography.bodySmall
