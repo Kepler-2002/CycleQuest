@@ -21,6 +21,7 @@ import androidx.room.Room
 import com.cyclequest.App
 import com.cyclequest.data.local.AppDatabase
 import com.cyclequest.data.local.dao.UserDao
+import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.dao.AchievementDao
 import com.cyclequest.data.local.dao.UserAchievementDao
 import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
@@ -48,6 +49,11 @@ object DatabaseModule {
         return database.userDao()    // 返回 UserDao实例
     }
 
+    @Provides
+    @Singleton
+    fun providePlannedRouteDao(database: AppDatabase): PlannedRouteDao {
+        return database.plannedRouteDao() // Provide PlannedRouteDao instance
+    }
 
     @Provides
     @Singleton
