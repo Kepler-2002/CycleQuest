@@ -3,6 +3,13 @@ buildscript {
     extra.apply {
         set("kotlin_version", "1.9.0")
     }
+
+    //添加了 Hilt 的 classpath
+    repositories {
+        google()
+        mavenCentral()
+    }
+
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${project.extra["kotlin_version"]}")
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.48")

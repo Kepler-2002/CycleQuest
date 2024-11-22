@@ -8,10 +8,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps2d.model.CameraPosition
+import com.amap.api.maps2d.model.LatLng
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.route.RouteSearch
 import com.amap.api.services.route.WalkRouteResult
 import com.cyclequest.domain.repository.AdministrativeDivisionRepository
+import com.cyclequest.service.location.LocationService
 import com.cyclequest.service.route.RouteService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,12 +23,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import android.util.Log
-import com.amap.api.maps2d.model.LatLng
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
+    private val locationService: LocationService,
     @ApplicationContext private val context: Context
-) : ViewModel() {   
+) : ViewModel() {
 
     sealed class MapMode {
         object Default : MapMode()
@@ -48,8 +50,14 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun updateCurrentLocation(location: LatLng) {
-        // 这里可以添加任何你需要基于位置信息执行的逻辑
+    fun updateCurrentLocation() {
+        if (checkLocationPermission()) {
+            locationService.getCurrentLocation { location ->
+                location?.let {
+                    _currentLocation.value = LatLng(it.latitude, it.longitude)
+                }
+            }
+        }
     }
 
     private fun checkLocationPermission(): Boolean =
@@ -57,4 +65,11 @@ class MapViewModel @Inject constructor(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
+    // Function to get current location as LatLng
+    fun getCurrentLocation(): LatLng? {
+        updateCurrentLocation()
+
+        return _currentLocation.value
+    }
 }

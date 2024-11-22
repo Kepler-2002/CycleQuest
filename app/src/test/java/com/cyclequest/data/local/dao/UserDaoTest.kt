@@ -76,7 +76,7 @@ class UserDaoTest : TestDatabase() {
         totalDistance = 0f,
         totalRideTime = 0L,
         lastLoginAt = null,
-        syncStatus = SyncStatus.PENDING,
+        // syncStatus = SyncStatus.PENDING,
         createdAt = System.currentTimeMillis(),
         updatedAt = System.currentTimeMillis()
     )

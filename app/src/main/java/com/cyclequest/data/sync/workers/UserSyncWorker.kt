@@ -16,6 +16,8 @@ class UserSyncWorker @Inject constructor(
     override suspend fun sync() {
         val localUsers = userDao.getAllUsers()
 
+        /* 禁用同步功能，仅返回本地数据
+
         when (val result = userApi.getUsers()) {
             is ApiResult.Success -> {
                 val remoteUsers = result.data
@@ -52,6 +54,9 @@ class UserSyncWorker @Inject constructor(
                 // TODO
             }
             is ApiResult.Loading -> { /* 忽略加载状态 */ }
-        }
+        }*/
+
+        //将所有本地用户标记为 已同步 -- 已注释掉 syncStatus
+        //userDao.upsertAll(localUsers.map { it.copy(syncStatus = SyncStatus.SYNCED)})
     }
 }

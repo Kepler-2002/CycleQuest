@@ -28,5 +28,5 @@ data class CommentEntity(
     @ColumnInfo(name = "created_at")
     override val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "sync_status")
-    override val syncStatus: SyncStatus = SyncStatus.PENDING, override val updatedAt: Long
+    val syncStatus: SyncStatus = SyncStatus.PENDING, override val updatedAt: Long
 ) : BaseEntity

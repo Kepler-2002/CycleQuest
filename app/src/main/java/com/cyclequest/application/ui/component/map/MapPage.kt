@@ -1,38 +1,37 @@
 package com.cyclequest.application.ui.components.map
 
 import android.graphics.Color
-import android.util.Log
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+
 import com.amap.api.maps2d.AMap
-import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.MapView
+import com.amap.api.maps2d.CameraUpdateFactory
 import com.amap.api.maps2d.model.CameraPosition
 import com.amap.api.maps2d.model.LatLng
-import com.amap.api.maps2d.model.Marker
-import com.amap.api.maps2d.model.MarkerOptions
 import com.amap.api.maps2d.model.MyLocationStyle
 import com.amap.api.maps2d.model.PolylineOptions
-import com.amap.api.maps2d.model.BitmapDescriptorFactory
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun MapPage(
     modifier: Modifier = Modifier,
     cameraPositionState: CameraPositionState = rememberCameraPositionState(),
-    onMapReady: (AMap) -> Unit,
-    onLocationChanged: (LatLng) -> Unit
+    onMapReady: (AMap) -> Unit
 ) {
-    val mapView = rememberMapViewWithLifecycle(onLocationChanged)
+    val mapView = rememberMapViewWithLifecycle()
 
     DisposableEffect(mapView) {
         onMapReady(mapView.map)
@@ -49,10 +48,12 @@ fun MapPage(
 }
 
 @Composable
-fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
+fun rememberMapViewWithLifecycle(): MapView {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val mapView = remember { MapView(context) }
+
+//    Map Control Object
     var mAMap: AMap = mapView.map
 
     var myLocationStyle: MyLocationStyle
@@ -62,59 +63,8 @@ fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
     myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
     mAMap.setMyLocationStyle(myLocationStyle) //设置定位蓝点的Style
     //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
-    mAMap.setMyLocationEnabled(false) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
+    mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
 
-    // 添加一个可拖动的标记来模拟定位蓝点
-    var marker by remember { mutableStateOf<Marker?>(null) }
-
-    // 初始化地图和标记
-    LaunchedEffect(Unit) {
-        marker = mAMap.addMarker(
-            MarkerOptions()
-                .position(LatLng(22.31251, 114.1928467)) // 初始位置
-                .draggable(true) // 允许拖动
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)) // 设置标记颜色为蓝色
-        )
-
-        // 设置标记拖动监听器
-        mAMap.setOnMarkerDragListener(object : AMap.OnMarkerDragListener {
-            override fun onMarkerDragStart(marker: Marker) {
-                // 拖动开始
-            }
-
-            override fun onMarkerDrag(marker: Marker) {
-                // 拖动中
-            }
-
-            override fun onMarkerDragEnd(marker: Marker) {
-                // 拖动结束，更新位置
-                val newPosition = marker.position
-                mAMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition))
-                onLocationChanged(newPosition)
-            }
-        })
-    }
-
-    // 定时获取位置
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(5000) // 每5秒执行一次
-            mAMap.myLocation?.let { location ->
-                onLocationChanged(LatLng(location.latitude, location.longitude))
-            } ?: Log.e("MapPage", "当前位置为空")
-        }
-    }
-
-//    Test: polyline
-//    val latLngs: MutableList<LatLng> = ArrayList()
-//    latLngs.add(LatLng(39.999391, 116.135972))
-//    latLngs.add(LatLng(39.898323, 116.057694))
-//    latLngs.add(LatLng(39.900430, 116.265061))
-//    latLngs.add(LatLng(39.955192, 116.140092))
-//    mAMap.addPolyline(
-//        PolylineOptions().addAll
-//            (latLngs).width(10f).color(Color.argb(255, 1, 1, 1))
-//    )
 
 //    TODO: 引入DiscoveryLayer与RoutingLayer，需要传入mAMap变量，控制自定义图层绘制
 
@@ -134,7 +84,6 @@ fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
         }
     }
 
-    // 生命周期相关代码保持不变...
     return mapView
 }
 

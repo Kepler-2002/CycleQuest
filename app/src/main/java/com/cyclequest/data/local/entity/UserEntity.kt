@@ -8,6 +8,9 @@ import com.cyclequest.core.database.sync.SyncStatus
 
 @Entity(tableName = "users")
 data class UserEntity(
+
+    //所有entity继承于BaseEntity的属性有: createdAt updatedAt
+    // id 为什么不是 Int
     @PrimaryKey
     val id: String,
     val username: String,
@@ -21,8 +24,8 @@ data class UserEntity(
     val totalRideTime: Long,
     @ColumnInfo(name = "last_login_at")
     val lastLoginAt: Long?,
-    @ColumnInfo(name = "sync_status")
-    override val syncStatus: SyncStatus = SyncStatus.PENDING,
+    /*@ColumnInfo(name = "sync_status")
+    override val syncStatus: SyncStatus = SyncStatus.PENDING,*/
     @ColumnInfo(name = "created_at")
     override val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "updated_at")
