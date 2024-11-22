@@ -23,10 +23,12 @@ import com.amap.api.services.geocoder.GeocodeSearch.OnGeocodeSearchListener
 import com.amap.api.services.geocoder.RegeocodeResult
 import com.cyclequest.application.viewmodels.MapViewModel
 import com.cyclequest.application.viewmodels.RoutingViewModel
+import com.cyclequest.service.route.RouteService
 
 @Composable
 fun SearchPanel(
     modifier: Modifier,
+    routeInfo: RouteService.RouteInfo?,
     mapViewModel: MapViewModel = hiltViewModel(),
     routingViewModel: RoutingViewModel = hiltViewModel(),
 ) {
@@ -109,40 +111,42 @@ fun SearchPanel(
                     )
                 }
             }
-            if (isDestinationAvail) {
-                AnimatedVisibility(
-                    visible = isDestinationAvail,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
+            AnimatedVisibility(
+                visible = isDestinationAvail,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Loc")
-                        IconButton(
-                            onClick = {
-                                // start navigation
-                                routingViewModel.NaviFlag_Set()
+                    routeInfo?.let { info ->
+                        Text("${info.totalDistance / 1000.0}公里  ${info.totalDuration / 60}分钟")
+                    }
+                    IconButton(
+                        onClick = {
+                            // start navigation
+                            routingViewModel.NaviFlag_Set()
 
-                                isDestinationAvail = false
-                            },
-                            modifier = Modifier
-                                .size(32.dp)
-                                .padding(top = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowForward,
-                                contentDescription = "Go",
-                            )
-                        }
+                            // save path to DB
+                            routingViewModel.saveRoute()
+
+                            // Last: change state flag
+                            isDestinationAvail = false
+                        },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(top = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Go",
+                        )
                     }
                 }
-                // 路线绘制 flag = true
             }
         }
         // 搜索栏下拉，显示位置&路线（缩放居中），右侧按钮开始导航
-        // 按下开始导航，收起下拉，地图以当前坐标居中
     }
 }

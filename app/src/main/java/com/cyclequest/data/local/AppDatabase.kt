@@ -1,6 +1,8 @@
 package com.cyclequest.data.local
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.cyclequest.data.local.dao.*
@@ -19,7 +21,8 @@ import com.cyclequest.data.local.DatabaseConverters
         PostTagEntity::class,
         PostLikeEntity::class,
         CommentEntity::class,
-        CommentLikeEntity::class
+        CommentLikeEntity::class,
+        PlannedRouteEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -37,6 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun postLikeDao(): PostLikeDao
     abstract fun commentDao(): CommentDao
     abstract fun commentLikeDao(): CommentLikeDao
+    abstract fun plannedRouteDao(): PlannedRouteDao
 }
 
 
