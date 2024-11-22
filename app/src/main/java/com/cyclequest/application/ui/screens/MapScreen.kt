@@ -25,12 +25,14 @@ import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
 import android.util.Log
 import com.amap.api.maps2d.CameraUpdateFactory
+import com.cyclequest.application.ui.components.map.SimulationMode
+import com.cyclequest.application.viewmodels.RoutingViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
     mapViewModel: MapViewModel = hiltViewModel(),
-//    routingViewModel: RoutingViewModel = hiltViewModel(),
+    routingViewModel: RoutingViewModel = hiltViewModel(),
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
 ) {
     val mapMode by mapViewModel.mapMode.collectAsState()
@@ -43,6 +45,15 @@ fun MapScreen(
         if (!permissionState.status.isGranted) {
             permissionState.launchPermissionRequest()
         }
+    }
+
+    // 计算当前的模拟模式
+    val simulationMode = when {
+        mapMode is MapViewModel.MapMode.Discovery && discoveryViewModel.isSimulationMode.value -> 
+            SimulationMode.DISCOVERY
+        mapMode is MapViewModel.MapMode.Routing && routingViewModel.isNavigationStarted.value -> 
+            SimulationMode.NAVIGATION
+        else -> SimulationMode.NONE
     }
 
     // 当地图模式改变时加载相应<数据>
@@ -87,10 +98,16 @@ fun MapScreen(
                 aMapInstance = aMap
             },
             onLocationChanged = { location ->
-                discoveryViewModel.locationUpdateCallback(location)
+                when (mapMode) {
+                    is MapViewModel.MapMode.Discovery -> 
+                        discoveryViewModel.locationUpdateCallback(location)
+                    is MapViewModel.MapMode.Routing -> {}
+                    else -> {}
+                }
             },
-            isSimulationMode = discoveryViewModel.isSimulationMode.value,
-            locationService = mapViewModel.locationService
+            simulationMode = simulationMode,
+            locationService = mapViewModel.locationService,
+            navigationRoute = routingViewModel.routePoints.value
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
