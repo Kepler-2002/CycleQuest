@@ -28,6 +28,9 @@ import com.cyclequest.application.ui.component.map.RouteInfoPanel
 import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
 import android.util.Log
+import com.cyclequest.application.viewmodels.ProvinceState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -43,6 +46,7 @@ fun MapScreen(
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
     val cameraPositionState = rememberCameraPositionState()
 //    val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     // 权限处理
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -157,6 +161,35 @@ fun MapScreen(
                         )
                     }
                 )
+            }
+
+            // 添加“demo”按钮
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        val allProvinceCodes = listOf(
+                            "110000", "120000", "130000", "140000", "150000",
+                            "210000", "220000", "230000", "310000", "320000",
+                            "330000", "340000", "350000", "360000", "370000",
+                            "410000", "420000", "430000", "440000", "450000",
+                            "460000", "500000", "510000", "520000", "530000",
+                            "540000", "610000", "620000", "630000", "640000",
+                            "650000"
+                        )
+                        // 将所有省份设置为默认状态
+                        allProvinceCodes.forEach { code ->
+                            discoveryViewModel.setProvinceState(code, ProvinceState.DEFAULT)
+                        }
+                        // 依次高亮每个省份
+                        allProvinceCodes.forEach { code ->
+                            discoveryViewModel.setProvinceState(code, ProvinceState.EXPLORED)
+                            delay(500)
+                        }
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+            ) {
+                Text("Demo")
             }
         }
 

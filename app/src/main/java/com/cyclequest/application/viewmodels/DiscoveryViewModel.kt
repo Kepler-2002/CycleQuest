@@ -30,9 +30,7 @@ class DiscoveryViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _provinceStates = mutableStateMapOf<String, ProvinceState>().apply {
-        this["150000"] = ProvinceState.EXPLORED // 内蒙古
-    }
+    private val _provinceStates = mutableStateMapOf<String, ProvinceState>()
     val provinceStates: Map<String, ProvinceState> get() = _provinceStates
 
     private val _provinceBoundaries = mutableStateMapOf<String, List<LatLng>>()

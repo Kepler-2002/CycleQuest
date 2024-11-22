@@ -2,6 +2,7 @@ package com.cyclequest.application.ui.component.map
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.amap.api.maps2d.AMap
@@ -10,6 +11,7 @@ import com.amap.api.maps2d.model.PolygonOptions
 import com.cyclequest.application.viewmodels.ProvinceState
 
 import timber.log.Timber
+import kotlinx.coroutines.delay
 
 @Composable
 fun DiscoveryLayer(
@@ -39,6 +41,14 @@ fun DiscoveryLayer(
             onDispose {
                 polygon.remove()
             }
+        }
+    }
+
+    // 使用 LaunchedEffect 进行状态检测和重绘
+    LaunchedEffect(provinceState) {
+        while (true) {
+            delay(1000)
+            // 触发UI刷新逻辑
         }
     }
 }
