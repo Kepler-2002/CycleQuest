@@ -1,6 +1,7 @@
 package com.cyclequest.core.di
 
 import com.cyclequest.data.mapper.UserMapper
+import com.cyclequest.data.mapper.AchievementMapper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,5 +18,11 @@ object MapperModule {
     @Singleton
     fun provideUserMapper(): UserMapper {
         return UserMapper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAchievementMapper(): AchievementMapper {
+        return AchievementMapper()
     }
 }

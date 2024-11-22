@@ -24,8 +24,8 @@ import com.cyclequest.data.local.DatabaseConverters
         CommentLikeEntity::class,
         PlannedRouteEntity::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 @TypeConverters(DatabaseConverters::class)
 abstract class AppDatabase : RoomDatabase() {
