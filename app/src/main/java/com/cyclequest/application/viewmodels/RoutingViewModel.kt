@@ -1,5 +1,6 @@
 package com.cyclequest.application.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps2d.model.LatLng
@@ -20,6 +21,7 @@ import com.cyclequest.domain.repository.PlannedRouteRepository
 @HiltViewModel
 class RoutingViewModel @Inject constructor(
     private val routeService: RouteService,
+
     private val plannedRouteRepository: PlannedRouteRepository
 ) : ViewModel() {
     
@@ -78,16 +80,22 @@ class RoutingViewModel @Inject constructor(
         _isNavigationStarted.value = false
     }
 
-    fun saveRoute() {
+    fun LatLng2doubleList(points: List<LatLng>): List<List<Double>> {
+        return points.map { listOf(it.latitude, it.longitude) }
+    }
+
+    fun saveRoute(userId: String) {
         viewModelScope.launch {
+            Log.i("RVM", "userId: $userId")
             plannedRouteRepository.saveRoute2DB(
                 PlannedPath(
-                    userId = "7df81256-fbbb-422c-8b6d-881f066320a5",
+                    userId = userId, // "7df81256-fbbb-422c-8b6d-881f066320a5",
                     distance = _routeInfo.value?.totalDistance ?: 0f,
                     duration = _routeInfo.value?.totalDuration ?: 0,
-                    routeData = listOf( // Sample route data
-                        listOf(37.7749, 122.4194), // Example coordinates (latitude, longitude)
-                        listOf(34.0522, 118.2437)),
+                    routeData = LatLng2doubleList(routePoints.value),
+//                    listOf( // Sample route data
+//                        listOf(37.7749, 122.4194), // Example coordinates (latitude, longitude)
+//                        listOf(34.0522, 118.2437)),
                     createdAt = System.currentTimeMillis(),
                 )
             )

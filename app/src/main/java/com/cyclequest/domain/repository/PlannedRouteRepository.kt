@@ -40,10 +40,9 @@ class PlannedRouteRepository @Inject constructor(
             isFavorite = false // Set isFavorite as needed
         )
 
-        Log.i("PRRepo", "saveRoute2DBv2")
-
         try {
             plannedRouteDao.insertRoute(routePlanned)
+            Log.i("PRRepo", "Insert ${routePlanned.routeData}")
             Log.i("PRRepo", "Insert Success")
             return ApiResult.Success(plannedPath)
         } catch (e: Exception) {

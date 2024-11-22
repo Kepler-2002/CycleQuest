@@ -22,6 +22,7 @@ import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.GeocodeSearch.OnGeocodeSearchListener
 import com.amap.api.services.geocoder.RegeocodeResult
 import com.cyclequest.application.viewmodels.MapViewModel
+import com.cyclequest.application.viewmodels.RegistrationViewModel
 import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.service.route.RouteService
 
@@ -29,10 +30,11 @@ import com.cyclequest.service.route.RouteService
 fun SearchPanel(
     modifier: Modifier,
     routeInfo: RouteService.RouteInfo?,
+    registrationViewModel: RegistrationViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel(),
     routingViewModel: RoutingViewModel = hiltViewModel(),
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf("香港理工大学") }
     var latitude by remember { mutableStateOf(0.0) }
     var longitude by remember { mutableStateOf(0.0) }
 
@@ -130,7 +132,9 @@ fun SearchPanel(
                             routingViewModel.NaviFlag_Set()
 
                             // save path to DB
-                            routingViewModel.saveRoute()
+                            registrationViewModel.getCurrentUserId()?.let { userId ->
+                                routingViewModel.saveRoute(userId)
+                            }
 
                             // Last: change state flag
                             isDestinationAvail = false
