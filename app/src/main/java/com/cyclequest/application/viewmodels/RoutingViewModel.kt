@@ -37,9 +37,14 @@ class RoutingViewModel @Inject constructor(
     private val _isRouteInfoMinimized = MutableStateFlow(false)
     val isRouteInfoMinimized: StateFlow<Boolean> = _isRouteInfoMinimized.asStateFlow()
 
+    // 模拟导航使能标志，暂未使用
+    private val _isSimulateNaviOn = MutableStateFlow(false)
+    val isSimulateNaviOn: StateFlow<Boolean> = _isSimulateNaviOn.asStateFlow()
+
     // 车控用的状态管理
     private val _latestRouteStats = MutableStateFlow<Pair<Int, Int>>(Pair(0, 0))
     val latestRouteStats: StateFlow<Pair<Int, Int>> = _latestRouteStats.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -76,12 +81,24 @@ class RoutingViewModel @Inject constructor(
         _isRouteInfoMinimized.value = !_isRouteInfoMinimized.value
     }
 
+    fun NaviFlagRead():Boolean{
+        return _isNavigationStarted.value
+    }
+
     fun NaviFlag_Set() {
         _isNavigationStarted.value = true
     }
 
     fun NaviFlag_Reset() {
         _isNavigationStarted.value = false
+    }
+
+    fun simNavi_Set() {
+        _isSimulateNaviOn.value = true
+    }
+
+    fun simNavi_Reset() {
+        _isSimulateNaviOn.value = false
     }
 
     fun LatLng2doubleList(points: List<LatLng>): List<List<Double>> {
