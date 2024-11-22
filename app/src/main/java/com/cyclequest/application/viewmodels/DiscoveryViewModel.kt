@@ -13,10 +13,12 @@ import com.amap.api.services.geocoder.GeocodeResult
 import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.RegeocodeQuery
 import com.amap.api.services.geocoder.RegeocodeResult
+import com.cyclequest.data.local.entity.UserExploredRegion
 import com.cyclequest.domain.model.Achievement
 import com.cyclequest.domain.repository.AdministrativeDivisionRepository
 import com.cyclequest.domain.repository.UserExploredRegionRepository
 import com.cyclequest.domain.usecase.RegionExplorerAchievementDetector
+import com.cyclequest.data.local.preferences.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -33,6 +35,7 @@ class DiscoveryViewModel @Inject constructor(
     private val administrativeDivisionRepository: AdministrativeDivisionRepository,
     private val userExploredRegionRepository: UserExploredRegionRepository,
     private val regionExplorerAchievementDetector: RegionExplorerAchievementDetector,
+    private val userPreferences: UserPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -56,10 +59,18 @@ class DiscoveryViewModel @Inject constructor(
     val showAchievementDialog: State<Achievement?> = _showAchievementDialog
 
     private var achievementCheckJob: Job? = null
-    private val currentUserId = "current_user"
+    private val currentUserId: String
+        get() = userPreferences.getUser()?.id ?: throw IllegalStateException("用户未登录")
 
     init {
         startAchievementCheck()
+        // 确保用户已登录
+        viewModelScope.launch {
+            if (userPreferences.getUser() == null) {
+                Log.e("DiscoveryViewModel", "用户未登录")
+                // 这里可以添加未登录状态的处理逻辑
+            }
+        }
     }
 
     private fun startAchievementCheck() {
@@ -129,15 +140,45 @@ class DiscoveryViewModel @Inject constructor(
                         val adCode = address.adCode
                         Log.d("DiscoveryViewModel", "获取到行政区划代码: $adCode")
                         setProvinceState(adCode, ProvinceState.EXPLORED)
+                        
+                        // 记录探索数据
+                        viewModelScope.launch {
+                            try {
+                                val existingRegion = userExploredRegionRepository.getUserExploredRegions(currentUserId)
+                                    .find { it.regionCode == adCode }
+                                
+                                val currentTime = System.currentTimeMillis()
+                                
+                                if (existingRegion == null) {
+                                    Log.d("DiscoveryViewModel", "首次探索新区域: $adCode")
+                                    val newRegion = UserExploredRegion(
+                                        userId = currentUserId,
+                                        regionCode = adCode,
+                                        firstExploredTime = currentTime,
+                                        lastExploredTime = currentTime,
+                                        exploredCount = 1
+                                    )
+                                    userExploredRegionRepository.addUserExploredRegion(newRegion)
+                                } else {
+//                                    Log.d("DiscoveryViewModel", "再次探索区域: $adCode, 当前次数=${existingRegion.exploredCount}")
+//                                    userExploredRegionRepository.updateUserExploredRegion(
+//                                        existingRegion.copy(
+//                                            lastExploredTime = currentTime,
+//                                            exploredCount = existingRegion.exploredCount + 1
+//                                        )
+//                                    )
+                                }
+                            } catch (e: Exception) {
+                                Log.e("DiscoveryViewModel", "处理区域探索时出错", e)
+                            }
+                        }
                     }
                 } else {
                     Log.e("DiscoveryViewModel", "获取行政区划失败: $rCode")
                 }
             }
 
-            override fun onGeocodeSearched(p0: GeocodeResult?, p1: Int) {
-                // 正向地理编码回调,这里不需要实现
-            }
+            override fun onGeocodeSearched(p0: GeocodeResult?, p1: Int) {}
         })
     }
 
