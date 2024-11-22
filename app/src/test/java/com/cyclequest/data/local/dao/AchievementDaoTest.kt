@@ -52,6 +52,6 @@ class AchievementDaoTest : TestDatabase() {
         description = "Test Description",
         type = AchievementType.TOTAL_DISTANCE,
         requirement = 100.0,
-        iconUrl = "test_icon.png"
+        resourceId = 0
     )
 } 

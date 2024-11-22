@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Index
+import androidx.room.ColumnInfo
+import com.cyclequest.core.base.BaseEntity
 
 
 @Entity(
@@ -33,5 +35,9 @@ data class UserAchievementEntity(
     val userId: String,
     val achievementId: String,
     val unlockedAt: Long,
-    val progress: Double
-) 
+    val progress: Double,
+    @ColumnInfo(name = "created_at")
+    override val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "updated_at")
+    override val updatedAt: Long = System.currentTimeMillis()
+) : BaseEntity

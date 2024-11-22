@@ -35,7 +35,10 @@ fun RoutingLayer(
 
     // 显示的搜索框
     Box(modifier = Modifier.fillMaxSize()) {
-        SearchPanel(modifier = Modifier)
+        SearchPanel(
+            modifier = Modifier,
+            routeInfo = routeInfo
+        )
     }
 
     // 开始导航时
