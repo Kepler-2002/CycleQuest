@@ -28,11 +28,14 @@ class RegionExplorerAchievementDetector @Inject constructor(
             }
 
         // 检查特定的探索区域成就
+        if (exploredRegions >= 3) {
+            achievementRepository.unlockAchievement(userId, "region_explorer_1")
+        }
         if (exploredRegions >= 5) {
-            achievementRepository.unlockAchievement(userId, "explore_5_regions")
+            achievementRepository.unlockAchievement(userId, "region_explorer_2")
         }
         if (exploredRegions >= 10) {
-            achievementRepository.unlockAchievement(userId, "explore_10_regions")
+            achievementRepository.unlockAchievement(userId, "region_explorer_3")
         }
     }
 }
