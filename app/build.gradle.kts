@@ -88,6 +88,9 @@ android {
 }
 
 dependencies {
+    //hhc
+    implementation ("androidx.compose.material:material-icons-extended:1.0.0") // 确保使用最新版本
+
     // livedata
     implementation("androidx.compose.runtime:runtime-livedata:1.7.5")
     implementation("androidx.compose.material3:material3:1.3.1")
@@ -225,6 +228,10 @@ dependencies {
 
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+
+    // Compose Animation
+    implementation("androidx.compose.animation:animation:1.7.5")
+    implementation("androidx.compose.animation:animation-core:1.7.5")
 
 }
 

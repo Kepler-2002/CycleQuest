@@ -1,6 +1,5 @@
 package com.cyclequest.application.ui.screens
 
-import android.util.Log
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import com.cyclequest.application.ui.components.map.MapPage
-import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
 import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -24,26 +22,22 @@ import com.cyclequest.application.ui.component.map.RoutingLayer
 import com.cyclequest.application.ui.component.map.DiscoveryLayer
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.amap.api.maps2d.model.LatLng
-//import com.cyclequest.application.ui.component.map.SearchPanel
-import com.cyclequest.application.ui.component.map.RouteInfoPanel
-import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
+import android.util.Log
+import com.amap.api.maps2d.CameraUpdateFactory
+import com.cyclequest.application.ui.components.map.SimulationMode
+import com.cyclequest.application.viewmodels.RoutingViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
     mapViewModel: MapViewModel = hiltViewModel(),
-//    routingViewModel: RoutingViewModel = hiltViewModel(),
+    routingViewModel: RoutingViewModel = hiltViewModel(),
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
 ) {
     val mapMode by mapViewModel.mapMode.collectAsState()
-    val currentLocation by mapViewModel.currentLocation.collectAsState()
-//    val routePoints by routingViewModel.routePoints.collectAsState()
-//    val routeInfo by routingViewModel.routeInfo.collectAsState()
-    val boundaryPoints by discoveryViewModel.boundaryPoints.collectAsState()
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
-    val cameraPositionState = rememberCameraPositionState()
-//    val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
+
 
     // 权限处理
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -53,13 +47,32 @@ fun MapScreen(
         }
     }
 
+    // 计算当前的模拟模式
+    val simulationMode = when {
+        mapMode is MapViewModel.MapMode.Discovery && discoveryViewModel.isSimulationMode.value -> 
+            SimulationMode.DISCOVERY
+        mapMode is MapViewModel.MapMode.Routing && routingViewModel.isNavigationStarted.value -> 
+            SimulationMode.NAVIGATION
+        else -> SimulationMode.NONE
+    }
+
     // 当地图模式改变时加载相应<数据>
     LaunchedEffect(mapMode) {
         when (mapMode) {
             // Discovery
             is MapViewModel.MapMode.Discovery -> {
-                discoveryViewModel.loadBoundary("150000")
-
+                val allProvinceCodes = listOf(
+                    "110000", "120000", "130000", "140000", "150000",
+                    "210000", "220000", "230000", "310000", "320000",
+                    "330000", "340000", "350000", "360000", "370000",
+                    "410000", "420000", "430000", "440000", "450000",
+                    "460000", "500000", "510000", "520000", "530000",
+                    "540000", "610000", "620000", "630000", "640000",
+                    "650000"
+                )
+                allProvinceCodes.forEach { code ->
+                    discoveryViewModel.loadBoundary(code)
+                }
             }
 
             // Routing
@@ -80,18 +93,35 @@ fun MapScreen(
         // 基础地图
         MapPage(
             modifier = Modifier.fillMaxSize(),
-            onMapReady = { aMap -> aMapInstance = aMap }
+            onMapReady = { aMap ->
+                Log.d("MapScreen", "地图初始化完成")
+                aMapInstance = aMap
+            },
+            onLocationChanged = { location ->
+                when (mapMode) {
+                    is MapViewModel.MapMode.Discovery -> 
+                        discoveryViewModel.locationUpdateCallback(location)
+                    is MapViewModel.MapMode.Routing -> {}
+                    else -> {}
+                }
+            },
+            simulationMode = simulationMode,
+            locationService = mapViewModel.locationService,
+            navigationRoute = routingViewModel.routePoints.value
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
-            aMapInstance?.let { aMap ->
-                when (mapMode) {
-                    is MapViewModel.MapMode.Discovery -> {
+            when (mapMode) {
+                is MapViewModel.MapMode.Discovery -> {
+                    discoveryViewModel.provinceStates.forEach { (code, state) ->
+                        val boundaryPoints = discoveryViewModel.provinceBoundaries[code] ?: emptyList()
                         DiscoveryLayer(
                             aMap = aMap,
-                            boundaryPoints = boundaryPoints
+                            boundaryPoints = boundaryPoints,
+                            provinceState = state
                         )
                     }
+                }
 
                     // <路线图层>
                     is MapViewModel.MapMode.Routing -> {
@@ -101,9 +131,8 @@ fun MapScreen(
                         )
                     }
 
-                    is MapViewModel.MapMode.Default -> {
-                        // 默认地图模式，不需要额外图层
-                    }
+                is MapViewModel.MapMode.Default -> {
+                    // 默认地图模式，不需要额外图层
                 }
             }
 
@@ -128,7 +157,15 @@ fun MapScreen(
                     .padding(16.dp)
             ) {
                 FloatingActionButton(
-                    onClick = { mapViewModel.updateCurrentLocation() },
+                    onClick = {
+                        // 点击定位按钮时移动到当前位置
+                        mapViewModel.locationService.getCurrentLocation { location ->
+                            location?.let {
+                                val currentLatLng = LatLng(it.latitude, it.longitude)
+                                aMapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17f))
+                            }
+                        }
+                    },
                     modifier = Modifier.padding(bottom = 16.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -141,30 +178,20 @@ fun MapScreen(
                     }
                 )
             }
+
+            // 只在探索模式下显示Demo按钮
+            if (mapMode is MapViewModel.MapMode.Discovery) {
+                val isSimulating by discoveryViewModel.isSimulationMode
+                Button(
+                    onClick = { discoveryViewModel.toggleSimulation() },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Text(if (isSimulating) "停止模拟" else "开始模拟")
+                }
+            }
         }
-
-        // 只在路线模式下且有路线信息时显示面板
-//        if (mapMode is MapViewModel.MapMode.Routing && routePoints.isNotEmpty()) {
-//            routeInfo?.let { info ->
-//                Box(modifier = Modifier.fillMaxSize()) {
-//                    RouteInfoPanel(
-//                        routeInfo = info,
-//                        isMinimized = isRouteInfoMinimized,
-//                        onMinimizedChange = { routingViewModel.toggleRouteInfoMinimized() },
-//                        modifier = Modifier
-//                            .align(if (isRouteInfoMinimized) Alignment.BottomStart else Alignment.BottomCenter)
-//                            .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
-//                    )
-//                }
-//            }
-//        }
-
-//        // 路线模式下显示的搜索框
-//        if(mapMode is MapViewModel.MapMode.Routing) {
-//            Box(modifier = Modifier.fillMaxSize()) {
-//                SearchPanel(modifier = Modifier)
-//            }
-//        }
     }
 }
 
