@@ -1,6 +1,5 @@
 package com.cyclequest.application.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,20 +21,10 @@ import androidx.compose.ui.text.style.TextOverflow  // Add this import
 import com.cyclequest.application.ui.component.forum.AwardItem
 import com.cyclequest.application.ui.component.forum.AwardEventCard
 import com.cyclequest.application.ui.component.forum.PostItem
-import com.cyclequest.application.viewmodels.ForumViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.cyclequest.domain.model.Post
-import dagger.hilt.android.lifecycle.HiltViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.cyclequest.domain.repository.AchievementRepository
-import com.cyclequest.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltViewModel()) {
+fun ForumScreen() {
 
     Scaffold(
         topBar = {
@@ -47,45 +36,23 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    try {
-                        navController.navigate("CreatePostScreen")
-                    } catch (e: Exception) {
-                        // 处理异常，例如记录日志
-                        Log.e("ForumScreen", "Navigation error: ${e.message}")
-                    }
-                },
-                modifier = Modifier.size(72.dp),
-                containerColor = Color.Green,
-                contentColor = Color.White
-            ) {
-                Text(
-                    "+",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-//            // Status tabs
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp)
-//            ) {
-//                Text("正在进行", color = Color.Green, fontWeight = FontWeight.Bold)
-//                Spacer(modifier = Modifier.width(16.dp))
-//                Text("即将上新", color = Color.Gray)
-//            }
+            // Status tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("正在进行", color = Color.Green, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("即将上新", color = Color.Gray)
+            }
 
             // My awards space
             Text(
@@ -100,125 +67,50 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                     horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(2) { index ->
+                items(5) { index ->
                     AwardItem(index)
                 }
             }
 
-//            // My post space
-//            Text(
-//                "我的帖子",
-//                modifier = Modifier.padding(16.dp),
-//                style = MaterialTheme.typography.titleMedium
-//            )
-//
-//            // Posts row
-//            LazyRow(
-//                modifier = Modifier.padding(horizontal = 16.dp),
-//                horizontalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                items(3) { index ->
-//                    PostItem(index)
-//                }
-//            }
+            // My post space
+            Text(
+                "我的帖子",
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            // Posts row
+            LazyRow(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(3) { index ->
+                    PostItem(index)
+                }
+            }
 
             // Category tabs
-            val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
-
-            TabRow(selectedTabIndex = selectedTabIndex) {
-                listOf("推荐", "我的帖子").forEachIndexed { index, title ->
+            TabRow(selectedTabIndex = 0) {
+                listOf("推荐", "发帖", "邀请有礼", "晒奖牌").forEachIndexed { index, title ->
                     Tab(
-                        selected = index == selectedTabIndex,
-                        onClick = { viewModel.selectTab(index) },
+                        selected = index == 0,
+                        onClick = { /* TODO: Implement tab selection */ },
                         text = { Text(title) }
                     )
                 }
             }
 
             // Award events
-            when (selectedTabIndex) {
-                0 -> {
-                    // Recommended content
-                    val achievements by viewModel.achievements.collectAsState()
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(achievements) { achievement ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-//                                    val iconResId = when (achievement.resourceId) {
-//                                        "achievements/distance_bronze.png" -> R.drawable.distance_bronze
-//                                        "achievements/distance_silver.png" -> R.drawable.distance_silver
-//                                        "achievements/distance_gold.png" -> R.drawable.distance_gold
-//                                        "achievements/explorer_bronze.png" -> R.drawable.explorer_bronze
-//                                        "achievements/explorer_gold.png" -> R.drawable.explorer_gold
-//                                        else -> R.drawable.default_icon // 默认图标
-//                                    }
-                                    Image(
-                                        painter = painterResource(id = achievement.resourceId), // 使用iconUrl
-                                        contentDescription = null,
-                                        modifier = Modifier.size(60.dp),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Column {
-                                        Text(text = achievement.name, style = MaterialTheme.typography.titleMedium)
-                                        Text(text = achievement.description, style = MaterialTheme.typography.bodySmall)
-                                        Text(text = achievement.type.toString(), style = MaterialTheme.typography.bodySmall)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                1 -> {
-                    // My posts content
-                    val userPosts by viewModel.userPostsFlow.collectAsState(initial = emptyList())
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(userPosts) { postEntity ->
-                            PostItem(post = Post(
-                                postId = postEntity.postId,
-                                userId = postEntity.userId,
-                                title = postEntity.title,
-                                content = postEntity.content,
-                                viewCount = postEntity.viewCount,
-                                likeCount = postEntity.likeCount,
-                                commentCount = postEntity.commentCount,
-                                isTop = postEntity.isTop,
-                                status = postEntity.status,
-                                createdAt = postEntity.createdAt,
-                                updatedAt = postEntity.updatedAt
-                            ))
-                        }
-                    }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(2) { index ->
+                    AwardEventCard(index)
                 }
             }
         }
     }
 }
-
-@Composable
-fun PostItem(post: Post) {
-    // 显示帖子内容，例如标题和内容
-    Column {
-        Text(text = post.title, fontWeight = FontWeight.Bold)
-        Text(text = post.content)
-    }
-}
-
-
 

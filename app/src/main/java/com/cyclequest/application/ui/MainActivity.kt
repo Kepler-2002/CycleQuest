@@ -117,8 +117,7 @@ fun MainScreen() {
             }
             composable("单车控制") { BicycleControlScreen() }
             composable("地图") { MapScreen() }
-            composable("论坛") { ForumScreen(navController) }
-            composable("CreatePostScreen") { CreatePostScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("论坛") { ForumScreen() }
 
             composable("profile") {
                 ProfileScreen(
