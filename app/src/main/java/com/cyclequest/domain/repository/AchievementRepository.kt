@@ -104,4 +104,10 @@ class AchievementRepository @Inject constructor(
                 }
             }
     }
+
+    // 检查成就是否已解锁
+    suspend fun isAchievementUnlocked(userId: String, achievementId: String): Boolean {
+        val userAchievement = userAchievementDao.getUserAchievement(userId, achievementId)
+        return userAchievement?.progress == 100.0
+    }
 } 

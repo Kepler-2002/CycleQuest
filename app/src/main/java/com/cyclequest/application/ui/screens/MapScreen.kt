@@ -25,12 +25,15 @@ import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
 import android.util.Log
 import com.amap.api.maps2d.CameraUpdateFactory
+import com.cyclequest.application.ui.component.achievement.AchievementDialog
 import com.cyclequest.application.ui.components.map.SimulationMode
 import com.cyclequest.application.viewmodels.RoutingViewModel
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
+    navController: NavController,
     mapViewModel: MapViewModel = hiltViewModel(),
     routingViewModel: RoutingViewModel = hiltViewModel(),
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
@@ -61,16 +64,29 @@ fun MapScreen(
         when (mapMode) {
             // Discovery
             is MapViewModel.MapMode.Discovery -> {
-                val allProvinceCodes = listOf(
-                    "110000", "120000", "130000", "140000", "150000",
-                    "210000", "220000", "230000", "310000", "320000",
-                    "330000", "340000", "350000", "360000", "370000",
-                    "410000", "420000", "430000", "440000", "450000",
-                    "460000", "500000", "510000", "520000", "530000",
-                    "540000", "610000", "620000", "630000", "640000",
-                    "650000"
+                // 香港各区行政区划代码
+                val hkDistrictCodes = listOf(
+                    "810001", // 中西区
+                    "810002", // 湾仔区
+                    "810003", // 东区
+                    "810004", // 南区
+                    "810005", // 油尖旺区
+                    "810006", // 深水埗区
+                    "810007", // 九龙城区
+                    "810008", // 黄大仙区
+                    "810009", // 观塘区
+                    "810010", // 荃湾区
+                    "810011", // 屯门区
+                    "810012", // 元朗区
+                    "810013", // 北区
+                    "810014", // 大埔区
+                    "810015", // 西贡区
+                    "810016", // 沙田区
+                    "810017", // 葵青区
+                    "810018"  // 离岛区
                 )
-                allProvinceCodes.forEach { code ->
+                
+                hkDistrictCodes.forEach { code ->
                     discoveryViewModel.loadBoundary(code)
                 }
             }
@@ -87,6 +103,18 @@ fun MapScreen(
             }
             else -> {}
         }
+    }
+
+    // 添加成就弹窗
+    discoveryViewModel.showAchievementDialog.value?.let { achievement ->
+        AchievementDialog(
+            achievement = achievement,
+            onDismiss = { discoveryViewModel.dismissAchievementDialog() },
+            onShare = { 
+                discoveryViewModel.dismissAchievementDialog()
+                navController.navigate("CreatePostScreen")
+            }
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -191,6 +219,12 @@ fun MapScreen(
                     Text(if (isSimulating) "停止模拟" else "开始模拟")
                 }
             }
+        }
+    }
+
+    LaunchedEffect(true) {
+        discoveryViewModel.navigationEvent.collect { route ->
+            navController.navigate(route)
         }
     }
 }
