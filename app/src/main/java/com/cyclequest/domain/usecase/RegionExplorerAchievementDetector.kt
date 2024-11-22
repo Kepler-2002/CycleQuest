@@ -1,7 +1,8 @@
 package com.cyclequest.domain.usecase
 
-    import com.cyclequest.data.local.entity.AchievementType
+import com.cyclequest.data.local.entity.AchievementType
 import com.cyclequest.domain.repository.AchievementRepository
+import com.cyclequest.domain.repository.UserExploredRegionRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -9,12 +10,10 @@ import javax.inject.Singleton
 @Singleton
 class RegionExplorerAchievementDetector @Inject constructor(
     private val achievementRepository: AchievementRepository,
-//    private val regionRepository: RegionRepository
+    private val userExploredRegionRepository: UserExploredRegionRepository
 ) : AchievementDetector {
     override suspend fun checkAchievements(userId: String) {
-//        val exploredRegions = regionRepository.getUserExploredRegions(userId).size
-        val exploredRegions = 100
-
+        val exploredRegions = userExploredRegionRepository.getUserExploredRegions(userId).size
 
         achievementRepository.getAllAchievements()
             .first()
@@ -27,5 +26,13 @@ class RegionExplorerAchievementDetector @Inject constructor(
                     achievementRepository.updateUserProgress(userId, achievement.id, progress)
                 }
             }
+
+        // 检查特定的探索区域成就
+        if (exploredRegions >= 5) {
+            achievementRepository.unlockAchievement(userId, "explore_5_regions")
+        }
+        if (exploredRegions >= 10) {
+            achievementRepository.unlockAchievement(userId, "explore_10_regions")
+        }
     }
 }
