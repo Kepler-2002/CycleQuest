@@ -1,23 +1,31 @@
 package com.cyclequest.application.ui.component.map
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.amap.api.maps2d.AMap
-import com.amap.api.maps2d.model.*
+import com.amap.api.maps2d.CameraUpdateFactory
+import com.amap.api.maps2d.model.BitmapDescriptorFactory
+import com.amap.api.maps2d.model.CameraPosition
+import com.amap.api.maps2d.model.Circle
+import com.amap.api.maps2d.model.CircleOptions
+import com.amap.api.maps2d.model.LatLng
+import com.amap.api.maps2d.model.MarkerOptions
+import com.amap.api.maps2d.model.PolylineOptions
 import com.cyclequest.application.viewmodels.MapViewModel
 import com.cyclequest.application.viewmodels.RoutingViewModel
-import java.lang.Math
+
 
 @Composable
 fun RoutingLayer(
@@ -60,7 +68,42 @@ fun RoutingLayer(
 
     // 显示路线(有routePoints时)
     if (routePoints.isNotEmpty()) {
+        val latitudes = routePoints.map { it.latitude }
+        val longitudes = routePoints.map { it.longitude }
+
+        val minLat = latitudes.minOrNull() ?: 0.0
+        val maxLat = latitudes.maxOrNull() ?: 0.0
+        val minLng = longitudes.minOrNull() ?: 0.0
+        val maxLng = longitudes.maxOrNull() ?: 0.0
+
+        val centerPoint = LatLng((minLat + maxLat) / 2, (minLng + maxLng) / 2)
+
+        // Calculate maximum span in latitude and longitude
+        val latSpan = maxLat - minLat
+        val lngSpan = maxLng - minLng
+
+        // Calculate zoom level based on span (example calculation)
+        val zoomLevel = calculateZoomLevel(latSpan, lngSpan)
+
+        // Log the bounding rectangle, center point, and zoom level
+        Log.i("RoutingLayer", "Bounding Rectangle: [($minLat, $minLng), ($maxLat, $maxLng)]")
+        Log.i("RoutingLayer", "Center Point: $centerPoint")
+        Log.i("RoutingLayer", "Calculated Zoom Level: $zoomLevel")
+
         DisposableEffect(routePoints) {
+            // Update camera position with the new zoom level
+            val mCameraUpdate = CameraUpdateFactory.newCameraPosition(
+                CameraPosition(
+                    centerPoint,
+                    zoomLevel,
+                    0f,
+                    0f
+                )
+            )
+            // 路线居中
+            aMap.animateCamera(mCameraUpdate)
+
+
             // 阴影效果
             val shadowPolyline = aMap.addPolyline(PolylineOptions().apply {
                 addAll(routePoints)
@@ -136,5 +179,18 @@ private fun isDirectionChanged(prev: LatLng, current: LatLng, next: LatLng): Boo
     )
     val angleDiff = Math.abs(angle1 - angle2)
     return angleDiff > Math.PI / 6  // 转弯角度大于30度时显示转弯点
+}
+
+// Function to calculate zoom level based on latitude and longitude span
+private fun calculateZoomLevel(latSpan: Double, lngSpan: Double): Float {
+    // Example logic to determine zoom level based on span
+    val maxSpan = maxOf(latSpan, lngSpan)
+    return when {
+        maxSpan < 0.01 -> 16.5f // Close zoom
+        maxSpan < 0.1 -> 14.5f
+        maxSpan < 1.0 -> 12.5f
+        maxSpan < 10.0 -> 10.5f
+        else -> 10f // Far zoom
+    }
 }
 
