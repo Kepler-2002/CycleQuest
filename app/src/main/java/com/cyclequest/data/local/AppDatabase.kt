@@ -23,6 +23,7 @@ import com.cyclequest.data.local.DatabaseConverters
         CommentEntity::class,
         CommentLikeEntity::class,
         PlannedRouteEntity::class,
+        RideRecordEntity::class,
         UserExploredRegion::class
     ],
     version = 2,
@@ -42,6 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun commentDao(): CommentDao
     abstract fun commentLikeDao(): CommentLikeDao
     abstract fun plannedRouteDao(): PlannedRouteDao
+    abstract fun rideRecordDao(): RideRecordDao
     abstract fun userExploredRegionDao(): UserExploredRegionDao
 }
 

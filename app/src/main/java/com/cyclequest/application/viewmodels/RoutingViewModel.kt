@@ -15,14 +15,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.delay
 
 import com.cyclequest.domain.repository.PlannedRouteRepository
+import com.cyclequest.domain.usecase.RideDistanceAchievementDetector
+import com.cyclequest.data.local.preferences.UserPreferences
 
 @HiltViewModel
 class RoutingViewModel @Inject constructor(
     private val routeService: RouteService,
-
-    private val plannedRouteRepository: PlannedRouteRepository
+    private val userPreferences: UserPreferences,
+    private val plannedRouteRepository: PlannedRouteRepository,
+    private val rideDistanceAchievementDetector: RideDistanceAchievementDetector
 ) : ViewModel() {
     
     private val _routePoints = MutableStateFlow<List<LatLng>>(emptyList())
@@ -64,6 +68,7 @@ class RoutingViewModel @Inject constructor(
                 _routeInfo.value = info
             }
         }
+        startPeriodicTask()
     }
 
     fun searchRoute(startPoint: LatLng, endPoint: LatLng) {
@@ -123,6 +128,24 @@ class RoutingViewModel @Inject constructor(
         }
     }
 
+    private fun startPeriodicTask() {
+        viewModelScope.launch {
+            while (true) {
+                // 在这里执行你的定时任务
+                val userId = userPreferences.getUser()?.id
+
+                if (userId != null) {
+                    Log.i("queryUID", "UID: $userId")
+                    rideDistanceAchievementDetector.checkAchievements(userId)
+                } else {
+                    Log.d("RoutingViewModel", "User ID is null, cannot check achievements.")
+                }
+
+                // 延迟一秒
+                delay(1000)
+            }
+        }
+    }
     // 车控用的
     fun observeLatestRoute(userId: String) {
         viewModelScope.launch {

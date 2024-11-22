@@ -24,6 +24,7 @@ import com.cyclequest.data.local.dao.PostDao
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.dao.AchievementDao
+import com.cyclequest.data.local.dao.RideRecordDao
 import com.cyclequest.data.local.dao.UserAchievementDao
 import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
 import com.cyclequest.data.local.dao.UserExploredRegionDao
@@ -67,6 +68,12 @@ object DatabaseModule {
     @Singleton
     fun providePlannedRouteDao(database: AppDatabase): PlannedRouteDao {
         return database.plannedRouteDao() // Provide PlannedRouteDao instance
+    }
+
+    @Provides
+    @Singleton
+    fun provideRideRecordDao(database: AppDatabase): RideRecordDao {
+        return database.rideRecordDao() // Provide PlannedRouteDao instance
     }
 
     @Provides

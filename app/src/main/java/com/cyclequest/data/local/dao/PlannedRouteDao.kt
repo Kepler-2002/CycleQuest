@@ -21,7 +21,7 @@ interface PlannedRouteDao {
 
     @Query("SELECT * FROM planned_route WHERE _id = :routeId")
     suspend fun getRouteById(routeId: Long): PlannedRouteEntity?
-  
+
     // 同步车控页面数据使用的查询方法
     @Query("SELECT * FROM planned_route WHERE userId = :userId ORDER BY createdAt DESC LIMIT 1")
     fun getLatestRouteFlow(userId: String): Flow<PlannedRouteEntity?>
@@ -34,5 +34,4 @@ interface PlannedRouteDao {
 
     @Query("SELECT * FROM planned_route WHERE userId = :userId")
     fun getRoutesByUserId(userId: String): Flow<List<PlannedRouteEntity>>
-
 }
