@@ -21,9 +21,6 @@ interface AchievementDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(achievements: List<AchievementEntity>)
 
-    @Update
-    suspend fun updateAchievement(achievement: AchievementEntity)
-
     @Delete
     suspend fun deleteAchievement(achievement: AchievementEntity)
 

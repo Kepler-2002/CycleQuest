@@ -22,15 +22,19 @@ import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.GeocodeSearch.OnGeocodeSearchListener
 import com.amap.api.services.geocoder.RegeocodeResult
 import com.cyclequest.application.viewmodels.MapViewModel
+import com.cyclequest.application.viewmodels.RegistrationViewModel
 import com.cyclequest.application.viewmodels.RoutingViewModel
+import com.cyclequest.service.route.RouteService
 
 @Composable
 fun SearchPanel(
     modifier: Modifier,
+    routeInfo: RouteService.RouteInfo?,
+    registrationViewModel: RegistrationViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel(),
     routingViewModel: RoutingViewModel = hiltViewModel(),
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf("香港理工大学") }
     var latitude by remember { mutableStateOf(0.0) }
     var longitude by remember { mutableStateOf(0.0) }
 
@@ -50,7 +54,10 @@ fun SearchPanel(
                 val location = result.geocodeAddressList[0].latLonPoint
                 latitude = location.latitude
                 longitude = location.longitude
-                Log.i("Destination", "Latitude: $latitude, Longitude: $longitude")
+
+                Log.i("Geocode", "rCode=$rCode")
+                Log.i("Geocode", "Latitude: $latitude, Longitude: $longitude")
+                
 
                 // 加载路线数据
                 mapViewModel.getCurrentLocation()?.let {
@@ -98,6 +105,8 @@ fun SearchPanel(
                         // Trigger geocoding when the search button is clicked
                         val query = GeocodeQuery(searchQuery, "香港") // Replace with the appropriate city if needed
                         geocodeSearch.getFromLocationNameAsyn(query)
+
+                        routingViewModel.NaviFlag_Reset()
                     },
                     modifier = Modifier
                         .size(32.dp)
@@ -109,40 +118,47 @@ fun SearchPanel(
                     )
                 }
             }
-            if (isDestinationAvail) {
-                AnimatedVisibility(
-                    visible = isDestinationAvail,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
+            AnimatedVisibility(
+                visible = isDestinationAvail,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Loc")
-                        IconButton(
-                            onClick = {
-                                // start navigation
-                                routingViewModel.NaviFlag_Set()
+                    routeInfo?.let { info ->
+                        Text("${info.totalDistance / 1000.0}公里  ${info.totalDuration / 60}分钟")
+                    }
+                    IconButton(
+                        onClick = {
+                            // start navigation
+                            routingViewModel.NaviFlag_Set()
 
-                                isDestinationAvail = false
-                            },
-                            modifier = Modifier
-                                .size(32.dp)
-                                .padding(top = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowForward,
-                                contentDescription = "Go",
-                            )
-                        }
+                            // save path to DB
+                            registrationViewModel.getCurrentUserId()?.let { userId ->
+                                routingViewModel.saveRoute(userId)
+                            }
+
+                            // #ifdef simulate
+                            routingViewModel.simNavi_Set()
+
+                            // Last: change state flag
+                            isDestinationAvail = false
+                        },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(top = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Go",
+                        )
                     }
                 }
-                // 路线绘制 flag = true
             }
         }
         // 搜索栏下拉，显示位置&路线（缩放居中），右侧按钮开始导航
-        // 按下开始导航，收起下拉，地图以当前坐标居中
     }
 }

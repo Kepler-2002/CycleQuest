@@ -30,6 +30,11 @@ class MapViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    init {
+        // Initialization code can go here
+        updateCurrentLocation()
+    }
+
     sealed class MapMode {
         object Default : MapMode()
         object Routing : MapMode()
@@ -68,7 +73,7 @@ class MapViewModel @Inject constructor(
 
     // Function to get current location as LatLng
     fun getCurrentLocation(): LatLng? {
-        updateCurrentLocation()
+//        updateCurrentLocation()
 
         return _currentLocation.value
     }

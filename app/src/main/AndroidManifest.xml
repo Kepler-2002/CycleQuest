@@ -43,7 +43,7 @@
         <!-- 高德地图API Key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="8f26df059d16ab5552fdd7771850032c" />
+            android:value="fe2e6c141e628bd5d8a92e0034fa67c2" />
 
         <!-- 定位服务 -->
         <service android:name="com.amap.api.location.APSService" />
