@@ -24,6 +24,7 @@ import com.cyclequest.data.local.dao.PostDao
 import com.cyclequest.data.local.dao.UserDao
 import com.cyclequest.data.local.dao.PlannedRouteDao
 import com.cyclequest.data.local.dao.AchievementDao
+import com.cyclequest.data.local.dao.PostImageDao
 import com.cyclequest.data.local.dao.UserAchievementDao
 import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
 import com.cyclequest.data.local.dao.UserExploredRegionDao
@@ -61,6 +62,12 @@ object DatabaseModule {
     @Singleton
     fun providePostDao(database: AppDatabase): PostDao {
         return database.postDao()
+    }
+
+    @Provides
+    @Singleton
+    fun providePostImageDao(database: AppDatabase): PostImageDao {
+        return database.postImageDao()
     }
 
     @Provides

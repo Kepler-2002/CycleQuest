@@ -130,7 +130,7 @@ fun MainScreen() {
             }
             composable("地图") { MapScreen(navController = navController) }
             composable("论坛") { ForumScreen(navController) }
-            composable("CreatePostScreen") { CreatePostScreen(onNavigateBack = { navController.popBackStack() }) }
+            composable("CreatePostScreen") { CreatePostScreen(onNavigateBack = { navController.popBackStack() }, achievementId = "") }
 
             composable("profile") {
                 ProfileScreen(

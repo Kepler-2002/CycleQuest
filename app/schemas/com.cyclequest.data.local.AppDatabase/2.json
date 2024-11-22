@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "4f8e783e18fdd70a3d75e06aa4fc6e1e",
+    "identityHash": "feadfdbe0b89675b4d2806d75b78e55c",
     "entities": [
       {
         "tableName": "users",
@@ -406,7 +406,7 @@
       },
       {
         "tableName": "posts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`postId` TEXT NOT NULL, `userId` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `viewCount` INTEGER NOT NULL, `likeCount` INTEGER NOT NULL, `commentCount` INTEGER NOT NULL, `isTop` INTEGER NOT NULL, `status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` TEXT NOT NULL, PRIMARY KEY(`postId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`postId` TEXT NOT NULL, `userId` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `achievementId` TEXT NOT NULL, `viewCount` INTEGER NOT NULL, `likeCount` INTEGER NOT NULL, `commentCount` INTEGER NOT NULL, `isTop` INTEGER NOT NULL, `status` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_status` TEXT NOT NULL, PRIMARY KEY(`postId`))",
         "fields": [
           {
             "fieldPath": "postId",
@@ -429,6 +429,12 @@
           {
             "fieldPath": "content",
             "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "achievementId",
+            "columnName": "achievementId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -1015,7 +1021,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4f8e783e18fdd70a3d75e06aa4fc6e1e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'feadfdbe0b89675b4d2806d75b78e55c')"
     ]
   }
 }

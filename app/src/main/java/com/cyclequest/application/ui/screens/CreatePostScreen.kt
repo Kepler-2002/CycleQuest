@@ -19,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow  // Add this import
-import com.cyclequest.application.ui.component.forum.AwardItem
 import com.cyclequest.application.ui.component.forum.AwardEventCard
 import com.cyclequest.application.ui.component.forum.PostItem
 import com.cyclequest.application.viewmodels.CreatePostViewModel
@@ -57,14 +56,55 @@ import com.cyclequest.domain.model.Post
 import com.cyclequest.domain.repository.PostRepository
 
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cyclequest.data.local.entity.PostEntity
 import com.cyclequest.domain.model.Achievement
+import com.cyclequest.domain.model.PostImages
+import kotlinx.coroutines.launch
+
+
+@Composable
+fun AwardItem(viewModel: CreatePostViewModel = hiltViewModel()) {
+    val achievements by viewModel.getAchievements().collectAsState(initial = emptyList())
+
+    LazyRow {
+        items(achievements) { achievement ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = achievement.resourceId),
+                    contentDescription = null,
+                    modifier = Modifier.size(60.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Text(
+                    achievement.name,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
+
     onNavigateBack: () -> Unit,
+    achievementId: String?, // 接收Achievement ID
     viewModel: CreatePostViewModel = hiltViewModel()
 ) {
+    var selectedImageResource by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(achievementId) {
+        achievementId?.let {
+            val achievement = viewModel.getAchievementById(it)
+            selectedImageResource = achievement?.resourceId
+        }
+    }
+
+    // 其他代码...
+
     val darkColorScheme = darkColorScheme()
 
     var selectedImagePath by remember { mutableStateOf<String?>(null) }
@@ -73,13 +113,27 @@ fun CreatePostScreen(
 
     var postText by remember { mutableStateOf("") }
 
-    var selectedImageResource by remember { mutableStateOf<Int?>(null) }
+
 
     // 奖牌选择框
     var selectedAwardIndex by remember { mutableStateOf(2) } // 用于存储选择的奖牌索引
 
     // 新增的标题输入框
     var titleText by remember { mutableStateOf("") }
+
+    // 获取成就列表
+    val achievements by viewModel.getAchievements().collectAsState(initial = emptyList())
+
+    // 奖牌选择框点击事件
+    Box(modifier = Modifier.clickable { showDialog = true }) {
+        selectedImageResource?.let {
+            Image(
+                painter = painterResource(id = it),
+                contentDescription = "Selected Achievement",
+                modifier = Modifier.size(60.dp)
+            )
+        } ?: Text("选择奖牌")
+    }
 
     fun handleSubmit() {
         
@@ -89,6 +143,7 @@ fun CreatePostScreen(
             userId = viewModel.userPreferences.getUser()?.id ?: "",
             title = titleText, // 使用标题文本
             content = postText,
+            achievementId = "",
             viewCount = 0,
             likeCount = 0,
             commentCount = 0,
@@ -201,7 +256,13 @@ fun CreatePostScreen(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                AwardItem(selectedAwardIndex) // 显示当前选择的奖牌
+                selectedImageResource?.let {
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = "Selected Achievement",
+                        modifier = Modifier.size(60.dp)
+                    )
+                } ?: Text("选择奖牌")
             }
 
             // Bottom Options
@@ -277,13 +338,13 @@ fun CreatePostScreen(
             title = { Text("选择奖牌") },
             text = {
                 LazyColumn {
-                    items(2) { index -> // 假设有3个奖牌
+                    items(achievements) { achievement ->
                         ListItem(
                             modifier = Modifier.clickable {
-                                selectedAwardIndex = index // 更新选择的奖牌索引
-                                showDialog = false // 关闭对话框
+                                selectedImageResource = achievement.resourceId
+                                showDialog = false
                             },
-                            headlineContent = { Text("奖牌 ${index + 1}") } // 显示奖牌名称
+                            headlineContent = { Text(achievement.name) }
                         )
                     }
                 }
@@ -307,5 +368,5 @@ fun CreatePostScreen(
 @Preview(showBackground = true)
 @Composable
 fun CreatePostScreenPreview() {
-    CreatePostScreen(onNavigateBack = {})
+    CreatePostScreen(onNavigateBack = {}, achievementId = "")
 }
