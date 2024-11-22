@@ -111,7 +111,7 @@ fun CreatePostScreen(
     }
 
     Surface(
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -129,14 +129,14 @@ fun CreatePostScreen(
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
-                TextButton(
+                Button(
                     onClick = { handleSubmit() },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = Color.White.copy(alpha = 0.6f)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Text("发表", fontSize = 16.sp)
@@ -146,51 +146,49 @@ fun CreatePostScreen(
             TextField(
                 value = postText,
                 onValueChange = { newText -> 
-                    postText = newText // 更新本地状态
+                    postText = newText
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 label = { Text("这一刻的想法...") },
-                textStyle = LocalTextStyle.current.copy(color = Color.White),
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.Gray,
-                    unfocusedLabelColor = Color.Gray
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
-                singleLine = false,
-                shape = MaterialTheme.shapes.small
+                singleLine = false
             )
 
             // 新增的标题输入框
             TextField(
                 value = titleText,
                 onValueChange = { newText -> 
-                    titleText = newText // 更新本地状态
+                    titleText = newText
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp), // 添加顶部间距
+                    .padding(top = 16.dp),
                 label = { Text("标题") },
-                placeholder = { Text("请输入标题") }, // 添加placeholder
+                placeholder = { Text("请输入标题") },
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.Gray,
-                    unfocusedLabelColor = Color.Gray
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
-                isError = titleText.isEmpty() // 如果标题为空，显示错误状态
+                isError = titleText.isEmpty()
             )
 
             // 奖牌选择框
