@@ -25,6 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 enum class ProvinceState {
     DEFAULT, EXPLORED
@@ -61,6 +63,9 @@ class DiscoveryViewModel @Inject constructor(
     private var achievementCheckJob: Job? = null
     private val currentUserId: String
         get() = userPreferences.getUser()?.id ?: throw IllegalStateException("用户未登录")
+
+    private val _navigationEvent = MutableSharedFlow<String>()
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     init {
         startAchievementCheck()
@@ -99,7 +104,11 @@ class DiscoveryViewModel @Inject constructor(
     }
 
     fun shareAchievement() {
-        // TODO: 实现分享逻辑
+        viewModelScope.launch {
+            _showAchievementDialog.value?.let { achievement ->
+                _navigationEvent.emit("CreatePostScreen")
+            }
+        }
     }
 
     override fun onCleared() {

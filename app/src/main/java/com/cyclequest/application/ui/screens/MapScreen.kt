@@ -28,10 +28,12 @@ import com.amap.api.maps2d.CameraUpdateFactory
 import com.cyclequest.application.ui.component.achievement.AchievementDialog
 import com.cyclequest.application.ui.components.map.SimulationMode
 import com.cyclequest.application.viewmodels.RoutingViewModel
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
+    navController: NavController,
     mapViewModel: MapViewModel = hiltViewModel(),
     routingViewModel: RoutingViewModel = hiltViewModel(),
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
@@ -108,7 +110,10 @@ fun MapScreen(
         AchievementDialog(
             achievement = achievement,
             onDismiss = { discoveryViewModel.dismissAchievementDialog() },
-            onShare = { discoveryViewModel.shareAchievement() }
+            onShare = { 
+                discoveryViewModel.dismissAchievementDialog()
+                navController.navigate("CreatePostScreen")
+            }
         )
     }
 
@@ -214,6 +219,12 @@ fun MapScreen(
                     Text(if (isSimulating) "停止模拟" else "开始模拟")
                 }
             }
+        }
+    }
+
+    LaunchedEffect(true) {
+        discoveryViewModel.navigationEvent.collect { route ->
+            navController.navigate(route)
         }
     }
 }
