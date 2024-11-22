@@ -183,7 +183,7 @@ fun rememberMapViewWithLifecycle(
                         if (targetLocation == startLocation) continue
                         
                         // 计算从当前位置到目标位置的步数
-                        val steps = 50
+                        val steps = 35
                         val latStep = (targetLocation.latitude - currentLocation.latitude) / steps
                         val lngStep = (targetLocation.longitude - currentLocation.longitude) / steps
 
