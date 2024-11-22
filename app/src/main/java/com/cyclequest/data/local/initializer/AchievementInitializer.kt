@@ -102,17 +102,17 @@ class AchievementInitializer @Inject constructor(
         AchievementEntity(
             id = "region_explorer_2",
             name = "探索大师",
-            description = "探索10个不同的城市区域",
+            description = "探索5个不同的城市区域",
             type = AchievementType.REGION_EXPLORER,
-            requirement = 10.0,
+            requirement = 5.0,
             resourceId = R.drawable.explorer_silver
         ),
         AchievementEntity(
             id = "region_explorer_3",
             name = "探索之神",
-            description = "探索20个不同的城市区域",
+            description = "探索10个不同的城市区域",
             type = AchievementType.REGION_EXPLORER,
-            requirement = 20.0,
+            requirement = 10.0,
             resourceId = R.drawable.explorer_gold
         )
 
