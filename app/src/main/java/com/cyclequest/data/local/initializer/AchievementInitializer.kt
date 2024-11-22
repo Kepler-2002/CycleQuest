@@ -1,6 +1,7 @@
 package com.cyclequest.data.local.initializer
 
 import android.util.Log
+import com.cyclequest.R
 import com.cyclequest.data.local.dao.AchievementDao
 import com.cyclequest.data.local.entity.AchievementEntity
 import com.cyclequest.data.local.entity.AchievementType
@@ -34,7 +35,7 @@ class AchievementInitializer @Inject constructor(
             description = "累计骑行距离达到10公里",
             type = AchievementType.TOTAL_DISTANCE,
             requirement = 10.0,
-            iconUrl = "achievements/distance_bronze.png"
+            resourceId = R.drawable.distance_bronze
         ),
         AchievementEntity(
             id = "total_distance_2",
@@ -42,7 +43,7 @@ class AchievementInitializer @Inject constructor(
             description = "累计骑行距离达到50公里",
             type = AchievementType.TOTAL_DISTANCE,
             requirement = 50.0,
-            iconUrl = "achievements/distance_silver.png"
+            resourceId = R.drawable.distance_silver
         ),
         AchievementEntity(
             id = "total_distance_3",
@@ -50,7 +51,7 @@ class AchievementInitializer @Inject constructor(
             description = "累计骑行距离达到100公里",
             type = AchievementType.TOTAL_DISTANCE,
             requirement = 100.0,
-            iconUrl = "achievements/distance_gold.png"
+            resourceId = R.drawable.distance_gold
         ),
 
 //        // 累计骑行时间成就
@@ -96,7 +97,7 @@ class AchievementInitializer @Inject constructor(
             description = "探索3个不同的城市区域",
             type = AchievementType.REGION_EXPLORER,
             requirement = 3.0,
-            iconUrl = "achievements/explorer_bronze.png"
+            resourceId = R.drawable.explorer_bronze
         ),
         AchievementEntity(
             id = "region_explorer_2",
@@ -104,7 +105,16 @@ class AchievementInitializer @Inject constructor(
             description = "探索10个不同的城市区域",
             type = AchievementType.REGION_EXPLORER,
             requirement = 10.0,
-            iconUrl = "achievements/explorer_gold.png"
+            resourceId = R.drawable.explorer_silver
+        ),
+        AchievementEntity(
+            id = "region_explorer_3",
+            name = "探索之神",
+            description = "探索20个不同的城市区域",
+            type = AchievementType.REGION_EXPLORER,
+            requirement = 20.0,
+            resourceId = R.drawable.explorer_gold
         )
+
     )
 } 

@@ -24,7 +24,7 @@ import com.cyclequest.data.local.DatabaseConverters
         CommentLikeEntity::class,
         PlannedRouteEntity::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = true
 )
 @TypeConverters(DatabaseConverters::class)
