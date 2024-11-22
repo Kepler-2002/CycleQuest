@@ -3,8 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
 }
-
 android {
     namespace = "com.cyclequest"
     compileSdk = 34
@@ -19,6 +19,15 @@ android {
 
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a","x86_64")
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true"
+                )
+            }
         }
     }
 
@@ -56,6 +65,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += listOf(
+            "-opt-in=kotlin.RequiresOptIn",
+            "-Xjvm-default=all"
+        )
     }
 
     buildFeatures {
@@ -100,8 +113,8 @@ dependencies {
 
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
     // Hilt with Compose
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
@@ -217,8 +230,10 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
-    useBuildCache = false
+    useBuildCache = true
     arguments {
-        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+        // 移除这个参数，因为它可能导致问题
+        // arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
     }
 }
+

@@ -21,6 +21,9 @@ import androidx.room.Room
 import com.cyclequest.App
 import com.cyclequest.data.local.AppDatabase
 import com.cyclequest.data.local.dao.UserDao
+import com.cyclequest.data.local.dao.AchievementDao
+import com.cyclequest.data.local.dao.UserAchievementDao
+import com.cyclequest.data.local.dao.UserDisplayedAchievementDao
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 @Module
@@ -34,7 +37,10 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "cyclequest_database"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .addCallback(provideDatabaseCallback())
+        .build()
     }
     @Provides
     @Singleton
@@ -95,5 +101,23 @@ object DatabaseModule {
                 Timber.d("数据库已打开")
             }
         }
+    }
+
+    @Provides
+    @Singleton
+    fun provideAchievementDao(database: AppDatabase): AchievementDao {
+        return database.achievementDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserAchievementDao(database: AppDatabase): UserAchievementDao {
+        return database.userAchievementDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserDisplayedAchievementDao(database: AppDatabase): UserDisplayedAchievementDao {
+        return database.userDisplayedAchievementDao()
     }
 }
