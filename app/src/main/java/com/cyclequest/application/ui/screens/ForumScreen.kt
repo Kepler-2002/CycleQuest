@@ -190,6 +190,11 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(userPosts) { postEntity ->
+                            val imageResId = when (postEntity.postId.toInt() % 3) { // 使用postId的余数来轮流选择图片
+                                0 -> R.drawable.forum1
+                                1 -> R.drawable.forum2
+                                else -> R.drawable.forum3
+                            }
                             PostItem(post = Post(
                                 postId = postEntity.postId,
                                 userId = postEntity.userId,
@@ -202,7 +207,8 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
                                 status = postEntity.status,
                                 createdAt = postEntity.createdAt,
                                 updatedAt = postEntity.updatedAt
-                            ))
+
+                            ), imageResId = imageResId)
                         }
                     }
                 }
@@ -212,13 +218,23 @@ fun ForumScreen(navController: NavController, viewModel: ForumViewModel = hiltVi
 }
 
 @Composable
-fun PostItem(post: Post) {
+fun PostItem(post: Post, imageResId: Int) {
     // 显示帖子内容，例如标题和内容
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp) // 增加每个帖子的间距
+    ) {
+        Image(
+            painter = painterResource(id = imageResId), // 显示帖子图片
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp), // 增大图片高度
+            contentScale = ContentScale.Crop
+        )
         Text(text = post.title, fontWeight = FontWeight.Bold)
         Text(text = post.content)
     }
 }
-
-
 
