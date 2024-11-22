@@ -75,6 +75,10 @@ class RoutingViewModel @Inject constructor(
         _isRouteInfoMinimized.value = !_isRouteInfoMinimized.value
     }
 
+    fun NaviFlagRead():Boolean{
+        return _isNavigationStarted.value
+    }
+
     fun NaviFlag_Set() {
         _isNavigationStarted.value = true
     }
