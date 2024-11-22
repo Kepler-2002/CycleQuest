@@ -25,6 +25,7 @@ import com.amap.api.maps2d.model.LatLng
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
 import android.util.Log
 import com.amap.api.maps2d.CameraUpdateFactory
+import com.cyclequest.application.ui.component.achievement.AchievementDialog
 import com.cyclequest.application.ui.components.map.SimulationMode
 import com.cyclequest.application.viewmodels.RoutingViewModel
 
@@ -100,6 +101,15 @@ fun MapScreen(
             }
             else -> {}
         }
+    }
+
+    // 添加成就弹窗
+    discoveryViewModel.showAchievementDialog.value?.let { achievement ->
+        AchievementDialog(
+            achievement = achievement,
+            onDismiss = { discoveryViewModel.dismissAchievementDialog() },
+            onShare = { discoveryViewModel.shareAchievement() }
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

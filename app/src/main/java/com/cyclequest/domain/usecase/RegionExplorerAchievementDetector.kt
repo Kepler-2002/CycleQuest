@@ -1,6 +1,7 @@
 package com.cyclequest.domain.usecase
 
 import com.cyclequest.data.local.entity.AchievementType
+import com.cyclequest.domain.model.Achievement
 import com.cyclequest.domain.repository.AchievementRepository
 import com.cyclequest.domain.repository.UserExploredRegionRepository
 import kotlinx.coroutines.flow.first
@@ -11,31 +12,24 @@ import javax.inject.Singleton
 class RegionExplorerAchievementDetector @Inject constructor(
     private val achievementRepository: AchievementRepository,
     private val userExploredRegionRepository: UserExploredRegionRepository
-) : AchievementDetector {
-    override suspend fun checkAchievements(userId: String) {
+)  {
+    suspend fun checkAchievements(userId: String): List<Achievement> {
+        val newlyUnlockedAchievements = mutableListOf<Achievement>()
         val exploredRegions = userExploredRegionRepository.getUserExploredRegions(userId).size
 
+        // 获取所有成就
         achievementRepository.getAllAchievements()
             .first()
             .filter { it.type == AchievementType.REGION_EXPLORER }
             .forEach { achievement ->
-                val progress = (exploredRegions / achievement.requirement) * 100
-                if (progress >= 100.0) {
+                // 检查是否已经解锁
+                val isUnlocked = achievementRepository.isAchievementUnlocked(userId, achievement.id)
+                if (!isUnlocked && exploredRegions >= achievement.requirement) {
                     achievementRepository.unlockAchievement(userId, achievement.id)
-                } else {
-                    achievementRepository.updateUserProgress(userId, achievement.id, progress)
+                    newlyUnlockedAchievements.add(achievement)
                 }
             }
 
-        // 检查特定的探索区域成就
-        if (exploredRegions >= 3) {
-            achievementRepository.unlockAchievement(userId, "region_explorer_1")
-        }
-        if (exploredRegions >= 5) {
-            achievementRepository.unlockAchievement(userId, "region_explorer_2")
-        }
-        if (exploredRegions >= 10) {
-            achievementRepository.unlockAchievement(userId, "region_explorer_3")
-        }
+        return newlyUnlockedAchievements
     }
 }

@@ -13,7 +13,10 @@ import com.amap.api.services.geocoder.GeocodeResult
 import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.RegeocodeQuery
 import com.amap.api.services.geocoder.RegeocodeResult
+import com.cyclequest.domain.model.Achievement
 import com.cyclequest.domain.repository.AdministrativeDivisionRepository
+import com.cyclequest.domain.repository.UserExploredRegionRepository
+import com.cyclequest.domain.usecase.RegionExplorerAchievementDetector
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -28,6 +31,8 @@ enum class ProvinceState {
 @HiltViewModel
 class DiscoveryViewModel @Inject constructor(
     private val administrativeDivisionRepository: AdministrativeDivisionRepository,
+    private val userExploredRegionRepository: UserExploredRegionRepository,
+    private val regionExplorerAchievementDetector: RegionExplorerAchievementDetector,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -42,10 +47,54 @@ class DiscoveryViewModel @Inject constructor(
     }
 
 
-    // 定是调用Detector
+    // 定时调用Detector
 
     private val _isSimulationMode = mutableStateOf(false)
     val isSimulationMode: State<Boolean> = _isSimulationMode
+
+    private val _showAchievementDialog = mutableStateOf<Achievement?>(null)
+    val showAchievementDialog: State<Achievement?> = _showAchievementDialog
+
+    private var achievementCheckJob: Job? = null
+    private val currentUserId = "current_user"
+
+    init {
+        startAchievementCheck()
+    }
+
+    private fun startAchievementCheck() {
+        achievementCheckJob?.cancel()
+        achievementCheckJob = viewModelScope.launch {
+            while (true) {
+                delay(1000) // 每秒检查一次
+                checkAchievements()
+            }
+        }
+    }
+
+    private suspend fun checkAchievements() {
+        try {
+            val newAchievements = regionExplorerAchievementDetector.checkAchievements(currentUserId)
+            newAchievements.firstOrNull()?.let { achievement ->
+                _showAchievementDialog.value = achievement
+            }
+        } catch (e: Exception) {
+            Log.e("DiscoveryViewModel", "检查成就时出错", e)
+        }
+    }
+
+    fun dismissAchievementDialog() {
+        _showAchievementDialog.value = null
+    }
+
+    fun shareAchievement() {
+        // TODO: 实现分享逻辑
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        achievementCheckJob?.cancel()
+    }
 
     fun loadBoundary(divisionCode: String) {
         viewModelScope.launch {
