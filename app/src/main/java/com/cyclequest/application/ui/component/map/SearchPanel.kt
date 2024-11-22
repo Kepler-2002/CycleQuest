@@ -54,7 +54,10 @@ fun SearchPanel(
                 val location = result.geocodeAddressList[0].latLonPoint
                 latitude = location.latitude
                 longitude = location.longitude
-                Log.i("Destination", "Latitude: $latitude, Longitude: $longitude")
+
+                Log.i("Geocode", "rCode=$rCode")
+                Log.i("Geocode", "Latitude: $latitude, Longitude: $longitude")
+                
 
                 // 加载路线数据
                 mapViewModel.getCurrentLocation()?.let {
