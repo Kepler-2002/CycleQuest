@@ -2,7 +2,9 @@ package com.cyclequest.application.viewmodels
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps2d.model.LatLng
@@ -14,9 +16,8 @@ import com.amap.api.services.geocoder.RegeocodeResult
 import com.cyclequest.domain.repository.AdministrativeDivisionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,6 +40,10 @@ class DiscoveryViewModel @Inject constructor(
     private val geocodeSearch by lazy {
         GeocodeSearch(context)
     }
+
+
+    private val _isSimulationMode = mutableStateOf(false)
+    val isSimulationMode: State<Boolean> = _isSimulationMode
 
     fun loadBoundary(divisionCode: String) {
         viewModelScope.launch {
@@ -83,5 +88,9 @@ class DiscoveryViewModel @Inject constructor(
                 // 正向地理编码回调,这里不需要实现
             }
         })
+    }
+
+    fun toggleSimulation() {
+        _isSimulationMode.value = !_isSimulationMode.value
     }
 }

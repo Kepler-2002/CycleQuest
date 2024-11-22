@@ -1,15 +1,11 @@
 package com.cyclequest.application.ui.components.map
 
 import android.graphics.Color
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import android.util.Log
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -20,19 +16,41 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.amap.api.maps2d.AMap
 import com.amap.api.maps2d.MapView
 import com.amap.api.maps2d.CameraUpdateFactory
-import com.amap.api.maps2d.model.CameraPosition
-import com.amap.api.maps2d.model.LatLng
-import com.amap.api.maps2d.model.MyLocationStyle
-import com.amap.api.maps2d.model.PolylineOptions
+import com.amap.api.maps2d.model.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import com.cyclequest.R
+import com.cyclequest.service.location.LocationService
 
 @Composable
 fun MapPage(
     modifier: Modifier = Modifier,
     cameraPositionState: CameraPositionState = rememberCameraPositionState(),
     onMapReady: (AMap) -> Unit,
-    onLocationChanged: (LatLng) -> Unit
+    onLocationChanged: (LatLng) -> Unit,
+    isSimulationMode: Boolean,
+    locationService: LocationService
 ) {
-    val mapView = rememberMapViewWithLifecycle(onLocationChanged)
+    val mapView = rememberMapViewWithLifecycle(onLocationChanged, isSimulationMode, locationService)
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> mapView.onCreate(null)
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     DisposableEffect(mapView) {
         onMapReady(mapView.map)
@@ -49,44 +67,79 @@ fun MapPage(
 }
 
 @Composable
-fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
+fun rememberMapViewWithLifecycle(
+    onLocationChanged: (LatLng) -> Unit,
+    isSimulationMode: Boolean,
+    locationService: LocationService
+): MapView {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val mapView = remember { MapView(context) }
+    val mAMap: AMap = mapView.map
+    val scope = rememberCoroutineScope()
+    
+    var lastLocation by remember { mutableStateOf<LatLng?>(null) }
+    var simulationJob by remember { mutableStateOf<Job?>(null) }
+    var locationMarker by remember { mutableStateOf<Marker?>(null) }
 
-//    Map Control Object
-    var mAMap: AMap = mapView.map
-
-    var myLocationStyle: MyLocationStyle
-    myLocationStyle =
-        MyLocationStyle() //初始化定位蓝点样式类myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);//连续定位、且将视角移动到地图中心点，定位点依照设备方向旋转，并且会跟随设备移动。（1秒1次定位）如果不设置myLocationType，默认也会执行此种模式。
-    myLocationStyle.interval(1000) //设置连续定位模式下的定位间隔，只在连续定位模式下生效，单次定位模式下不会生效。单位为毫秒。
-    myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
-    mAMap.setMyLocationStyle(myLocationStyle) //设置定位蓝点的Style
-    //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
-    mAMap.setMyLocationEnabled(true) // 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
-
-    mAMap.setOnMyLocationChangeListener { location ->
-        location?.let {
-            onLocationChanged(LatLng(it.latitude, it.longitude))
+    // 初始化定位和标记
+    LaunchedEffect(Unit) {
+        locationService.getCurrentLocation { location ->
+            location?.let {
+                val initialLatLng = LatLng(it.latitude, it.longitude)
+                locationMarker = mAMap.addMarker(MarkerOptions().apply {
+                    position(initialLatLng)
+                    icon(BitmapDescriptorFactory.fromResource(R.drawable.location_marker))
+                    anchor(0.5f, 0.5f)
+                })
+                mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, 17f))
+                lastLocation = initialLatLng
+            }
         }
     }
 
-//    TODO: 引入DiscoveryLayer与RoutingLayer，需要传入mAMap变量，控制自定义图层绘制
+    // 处理定位模式切换
+    DisposableEffect(isSimulationMode) {
+        simulationJob?.cancel()
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> mapView.onCreate(null)
-                Lifecycle.Event.ON_START -> mapView.onResume()
-                Lifecycle.Event.ON_STOP -> mapView.onPause()
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
-                else -> {}
+        if (!isSimulationMode) {
+            // 真实定位模式
+            locationService.setLocationInterval(2000) // 2秒更新一次
+            locationService.startLocationUpdates()
+            
+            scope.launch {
+                locationService.currentLocation.collect { location ->
+                    location?.let {
+                        val currentLatLng = LatLng(it.latitude, it.longitude)
+                        locationMarker?.position = currentLatLng
+                        lastLocation = currentLatLng
+                        onLocationChanged(currentLatLng)
+                    }
+                }
+            }
+        } else {
+            // 模拟定位模式
+            locationService.stopLocationUpdates()
+            simulationJob = scope.launch {
+                val startLocation = lastLocation ?: LatLng(22.31251, 114.1928467)
+                var currentLat = startLocation.latitude
+                var currentLng = startLocation.longitude
+
+                while (isActive) {
+                    currentLat += 0.0005
+                    currentLng += 0.0005
+                    val simulatedLocation = LatLng(currentLat, currentLng)
+                    locationMarker?.position = simulatedLocation
+                    mAMap.animateCamera(CameraUpdateFactory.newLatLng(simulatedLocation))
+                    onLocationChanged(simulatedLocation)
+                    delay(1000)
+                }
             }
         }
-        lifecycleOwner.lifecycle.addObserver(observer)
+
         onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+            simulationJob?.cancel()
+            simulationJob = null
+            locationService.stopLocationUpdates()
         }
     }
 
@@ -96,8 +149,6 @@ fun rememberMapViewWithLifecycle(onLocationChanged: (LatLng) -> Unit): MapView {
 @Composable
 fun rememberCameraPositionState(
     key: String? = null,
-    // 可以设置为读取上一次退出时保存的最后位置
-    // 当前默认香港九零城区中心
     initialPosition: CameraPosition = CameraPosition(LatLng(22.31251, 114.1928467), 10f, 0f, 0f)
 ): CameraPositionState = rememberSaveable(key = key, saver = CameraPositionState.Saver) {
     CameraPositionState(initialPosition)

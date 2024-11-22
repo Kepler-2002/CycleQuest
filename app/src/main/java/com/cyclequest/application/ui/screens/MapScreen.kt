@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import com.cyclequest.application.ui.components.map.MapPage
-import com.cyclequest.application.ui.components.map.rememberCameraPositionState
 import com.cyclequest.application.viewmodels.MapViewModel
 import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -23,14 +22,9 @@ import com.cyclequest.application.ui.component.map.RoutingLayer
 import com.cyclequest.application.ui.component.map.DiscoveryLayer
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.amap.api.maps2d.model.LatLng
-//import com.cyclequest.application.ui.component.map.SearchPanel
-import com.cyclequest.application.ui.component.map.RouteInfoPanel
-import com.cyclequest.application.viewmodels.RoutingViewModel
 import com.cyclequest.application.viewmodels.DiscoveryViewModel
 import android.util.Log
-import com.cyclequest.application.viewmodels.ProvinceState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.amap.api.maps2d.CameraUpdateFactory
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -40,13 +34,8 @@ fun MapScreen(
     discoveryViewModel: DiscoveryViewModel = hiltViewModel()
 ) {
     val mapMode by mapViewModel.mapMode.collectAsState()
-    val currentLocation by mapViewModel.currentLocation.collectAsState()
-//    val routePoints by routingViewModel.routePoints.collectAsState()
-//    val routeInfo by routingViewModel.routeInfo.collectAsState()
     var aMapInstance by remember { mutableStateOf<AMap?>(null) }
-    val cameraPositionState = rememberCameraPositionState()
-//    val isRouteInfoMinimized by routingViewModel.isRouteInfoMinimized.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
+
 
     // 权限处理
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -99,7 +88,9 @@ fun MapScreen(
             },
             onLocationChanged = { location ->
                 discoveryViewModel.locationUpdateCallback(location)
-            }
+            },
+            isSimulationMode = discoveryViewModel.isSimulationMode.value,
+            locationService = mapViewModel.locationService
         )
         aMapInstance?.let { aMap ->
             // 根据模式显示不同图层
@@ -149,7 +140,15 @@ fun MapScreen(
                     .padding(16.dp)
             ) {
                 FloatingActionButton(
-                    onClick = {},
+                    onClick = {
+                        // 点击定位按钮时移动到当前位置
+                        mapViewModel.locationService.getCurrentLocation { location ->
+                            location?.let {
+                                val currentLatLng = LatLng(it.latitude, it.longitude)
+                                aMapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17f))
+                            }
+                        }
+                    },
                     modifier = Modifier.padding(bottom = 16.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -163,58 +162,19 @@ fun MapScreen(
                 )
             }
 
-            // 添加“demo”按钮
-            Button(
-                onClick = {
-                    coroutineScope.launch {
-                        val allProvinceCodes = listOf(
-                            "110000", "120000", "130000", "140000", "150000",
-                            "210000", "220000", "230000", "310000", "320000",
-                            "330000", "340000", "350000", "360000", "370000",
-                            "410000", "420000", "430000", "440000", "450000",
-                            "460000", "500000", "510000", "520000", "530000",
-                            "540000", "610000", "620000", "630000", "640000",
-                            "650000"
-                        )
-                        // 将所有省份设置为默认状态
-                        allProvinceCodes.forEach { code ->
-                            discoveryViewModel.setProvinceState(code, ProvinceState.DEFAULT)
-                        }
-                        // 依次高亮每个省份
-                        allProvinceCodes.forEach { code ->
-                            discoveryViewModel.setProvinceState(code, ProvinceState.EXPLORED)
-                            delay(500)
-                        }
-                    }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
-            ) {
-                Text("Demo")
+            // 只在探索模式下显示Demo按钮
+            if (mapMode is MapViewModel.MapMode.Discovery) {
+                val isSimulating by discoveryViewModel.isSimulationMode
+                Button(
+                    onClick = { discoveryViewModel.toggleSimulation() },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Text(if (isSimulating) "停止模拟" else "开始模拟")
+                }
             }
         }
-
-        // 只在路线模式下且有路线信息时显示面板
-//        if (mapMode is MapViewModel.MapMode.Routing && routePoints.isNotEmpty()) {
-//            routeInfo?.let { info ->
-//                Box(modifier = Modifier.fillMaxSize()) {
-//                    RouteInfoPanel(
-//                        routeInfo = info,
-//                        isMinimized = isRouteInfoMinimized,
-//                        onMinimizedChange = { routingViewModel.toggleRouteInfoMinimized() },
-//                        modifier = Modifier
-//                            .align(if (isRouteInfoMinimized) Alignment.BottomStart else Alignment.BottomCenter)
-//                            .padding(bottom = 16.dp, start = if (isRouteInfoMinimized) 16.dp else 0.dp)
-//                    )
-//                }
-//            }
-//        }
-
-//        // 路线模式下显示的搜索框
-//        if(mapMode is MapViewModel.MapMode.Routing) {
-//            Box(modifier = Modifier.fillMaxSize()) {
-//                SearchPanel(modifier = Modifier)
-//            }
-//        }
     }
 }
 
