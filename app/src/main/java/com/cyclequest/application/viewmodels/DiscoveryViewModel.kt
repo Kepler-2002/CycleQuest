@@ -42,6 +42,8 @@ class DiscoveryViewModel @Inject constructor(
     }
 
 
+    // 定是调用Detector
+
     private val _isSimulationMode = mutableStateOf(false)
     val isSimulationMode: State<Boolean> = _isSimulationMode
 
