@@ -15,7 +15,7 @@ class AchievementMapper @Inject constructor() {
             description = entity.description,
             type = entity.type,
             requirement = entity.requirement,
-            iconUrl = entity.iconUrl,
+            resourceId = entity.resourceId,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt
         )
@@ -28,7 +28,7 @@ class AchievementMapper @Inject constructor() {
             description = domain.description,
             type = domain.type,
             requirement = domain.requirement,
-            iconUrl = domain.iconUrl,
+            resourceId = domain.resourceId,
             createdAt = domain.createdAt,
             updatedAt = domain.updatedAt
         )

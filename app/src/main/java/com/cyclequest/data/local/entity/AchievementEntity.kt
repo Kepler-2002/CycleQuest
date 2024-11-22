@@ -13,7 +13,7 @@ data class AchievementEntity(
     val description: String,
     val type: AchievementType,
     val requirement: Double,
-    val iconUrl: String,
+    val resourceId: Int, // 存储R.drawable.xxx的资源ID
     @ColumnInfo(name = "created_at")
     override val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "updated_at")
