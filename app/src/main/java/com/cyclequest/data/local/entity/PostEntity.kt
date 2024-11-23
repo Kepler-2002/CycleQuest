@@ -13,6 +13,7 @@ data class PostEntity(
     val userId: String,
     val title: String,
     val content: String,
+    val achievementId: String,
     val viewCount: Int = 0,
     val likeCount: Int = 0,
     val commentCount: Int = 0,

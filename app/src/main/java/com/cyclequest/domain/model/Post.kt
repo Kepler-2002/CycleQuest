@@ -11,6 +11,7 @@ data class Post(
     val userId: String,
     val title: String,
     val content: String,
+    val achievementId: String,
     val viewCount: Int,
     val likeCount: Int,
     val commentCount: Int,

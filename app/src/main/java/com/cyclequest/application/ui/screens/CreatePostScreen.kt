@@ -7,25 +7,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextOverflow  // Add this import
-import com.cyclequest.application.ui.component.forum.AwardItem
-import com.cyclequest.application.ui.component.forum.AwardEventCard
-import com.cyclequest.application.ui.component.forum.PostItem
 import com.cyclequest.application.viewmodels.CreatePostViewModel
-import com.cyclequest.application.viewmodels.ForumViewModel
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -38,33 +28,61 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.compose.ui.unit.sp
 
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.MaterialTheme
 
-
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
-import com.cyclequest.application.viewmodels.RegistrationViewModel
 import com.cyclequest.data.local.entity.PostStatus
-import com.cyclequest.data.local.preferences.UserPreferences
 import com.cyclequest.domain.model.Post
-import com.cyclequest.domain.repository.PostRepository
 
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cyclequest.domain.model.Achievement
+
+
+
+@Composable
+fun AwardItem(viewModel: CreatePostViewModel = hiltViewModel()) {
+    val achievements by viewModel.getAchievements().collectAsState(initial = emptyList())
+
+    LazyRow {
+        items(achievements) { achievement ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = achievement.resourceId),
+                    contentDescription = null,
+                    modifier = Modifier.size(60.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Text(
+                    achievement.name,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     onNavigateBack: () -> Unit,
+    achievementId: String?, // 接收Achievement ID
     viewModel: CreatePostViewModel = hiltViewModel()
 ) {
+    // 添加位置状态
+    var showLocationDialog by remember { mutableStateOf(false) }
+    var locationText by remember { mutableStateOf("") }
+    var currentLocation by remember { mutableStateOf("所在位置") }
+    var selectedImageResource by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(achievementId) {
+        achievementId?.let {
+            val achievement = viewModel.getAchievementById(it)
+            selectedImageResource = achievement?.resourceId
+        }
+    }
+
     val darkColorScheme = darkColorScheme()
 
     var selectedImagePath by remember { mutableStateOf<String?>(null) }
@@ -73,13 +91,27 @@ fun CreatePostScreen(
 
     var postText by remember { mutableStateOf("") }
 
-    var selectedImageResource by remember { mutableStateOf<Int?>(null) }
+
 
     // 奖牌选择框
     var selectedAwardIndex by remember { mutableStateOf(2) } // 用于存储选择的奖牌索引
 
     // 新增的标题输入框
     var titleText by remember { mutableStateOf("") }
+
+    // 获取成就列表
+    val achievements by viewModel.getAchievements().collectAsState(initial = emptyList())
+
+    // 奖牌选择框点击事件
+    Box(modifier = Modifier.clickable { showDialog = true }) {
+        selectedImageResource?.let {
+            Image(
+                painter = painterResource(id = it),
+                contentDescription = "Selected Achievement",
+                modifier = Modifier.size(60.dp)
+            )
+        } ?: Text("选择奖牌")
+    }
 
     fun handleSubmit() {
         
@@ -89,6 +121,7 @@ fun CreatePostScreen(
             userId = viewModel.userPreferences.getUser()?.id ?: "",
             title = titleText, // 使用标题文本
             content = postText,
+            achievementId = "",
             viewCount = 0,
             likeCount = 0,
             commentCount = 0,
@@ -111,7 +144,7 @@ fun CreatePostScreen(
     }
 
     Surface(
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -129,146 +162,136 @@ fun CreatePostScreen(
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
-                TextButton(
+                Button(
                     onClick = { handleSubmit() },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = Color.White.copy(alpha = 0.6f)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Text("发表", fontSize = 16.sp)
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 标题输入框
+            TextField(
+                value = titleText,
+                onValueChange = { titleText = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("标题") },
+                placeholder = { Text("请输入标题") },
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 奖牌选择区域 - 独占一行
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .clickable { showDialog = true },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    selectedImageResource?.let {
+                        Image(
+                            painter = painterResource(id = it),
+                            contentDescription = "Selected Achievement",
+                            modifier = Modifier.size(60.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "点击更换奖牌",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } ?: Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add Medal",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "选择奖牌",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 主要内容输入框
             TextField(
                 value = postText,
-                onValueChange = { newText -> 
-                    postText = newText // 更新本地状态
-                },
+                onValueChange = { postText = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 label = { Text("这一刻的想法...") },
-                textStyle = LocalTextStyle.current.copy(color = Color.White),
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.Gray,
-                    unfocusedLabelColor = Color.Gray
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
                 ),
-                singleLine = false,
-                shape = MaterialTheme.shapes.small
+                singleLine = false
             )
 
-            // 新增的标题输入框
-            TextField(
-                value = titleText,
-                onValueChange = { newText -> 
-                    titleText = newText // 更新本地状态
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp), // 添加顶部间距
-                label = { Text("标题") },
-                placeholder = { Text("请输入标题") }, // 添加placeholder
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color.Gray,
-                    unfocusedLabelColor = Color.Gray
-                ),
-                isError = titleText.isEmpty() // 如果标题为空，显示错误状态
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // 奖牌选择框
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color.DarkGray.copy(alpha = 0.3f))
-                    .clickable {
-                        showDialog = true // 显示奖牌选择对话框
-                    },
-                contentAlignment = Alignment.Center
+            // 底部功能区
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                AwardItem(selectedAwardIndex) // 显示当前选择的奖牌
-            }
-
-            // Bottom Options
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            Icons.Default.LocationOn,
-                            contentDescription = "Location",
-                            tint = Color.White
-                        )
-                    },
-                    headlineContent = { Text("所在位置", color = Color.White) },
-                    trailingContent = {
-                        Icon(
-                            Icons.Default.ChevronRight,
-                            contentDescription = "Select",
-                            tint = Color.Gray
-                        )
-                    },
-                    modifier = Modifier.clickable { /* TODO: Implement location selection */ }
-                )
-
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Mention",
-                            tint = Color.White
-                        )
-                    },
-                    headlineContent = { Text("提醒谁看", color = Color.White) },
-                    trailingContent = {
-                        Icon(
-                            Icons.Default.ChevronRight,
-                            contentDescription = "Select",
-                            tint = Color.Gray
-                        )
-                    },
-                    modifier = Modifier.clickable { /* TODO: Implement mention */ }
-                )
-
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            Icons.Default.Public,
-                            contentDescription = "Visibility",
-                            tint = Color.White
-                        )
-                    },
-                    headlineContent = { Text("谁可以看", color = Color.White) },
-                    trailingContent = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("公开", color = Color.Gray)
-                            Icon(
-                                Icons.Default.ChevronRight,
-                                contentDescription = "Select",
-                                tint = Color.Gray
-                            )
-                        }
-                    },
-                    modifier = Modifier.clickable { /* TODO: Implement visibility settings */ }
-                )
+                // 所在位置
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showLocationDialog = true },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = "Location",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = currentLocation,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
     }
@@ -279,13 +302,13 @@ fun CreatePostScreen(
             title = { Text("选择奖牌") },
             text = {
                 LazyColumn {
-                    items(2) { index -> // 假设有3个奖牌
+                    items(achievements) { achievement ->
                         ListItem(
                             modifier = Modifier.clickable {
-                                selectedAwardIndex = index // 更新选择的奖牌索引
-                                showDialog = false // 关闭对话框
+                                selectedImageResource = achievement.resourceId
+                                showDialog = false
                             },
-                            headlineContent = { Text("奖牌 ${index + 1}") } // 显示奖牌名称
+                            headlineContent = { Text(achievement.name) }
                         )
                     }
                 }
@@ -302,6 +325,51 @@ fun CreatePostScreen(
             }
         )
     }
+    // 位置输入弹窗
+    if (showLocationDialog) {
+        AlertDialog(
+            onDismissRequest = { showLocationDialog = false },
+            title = { Text("输入位置") },
+            text = {
+                TextField(
+                    value = locationText,
+                    onValueChange = { locationText = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("请输入位置") },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
+                    )
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (locationText.isNotBlank()) {
+                            currentLocation = locationText
+                        }
+                        showLocationDialog = false
+                        locationText = "" // 清空输入框
+                    }
+                ) {
+                    Text("完成")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { 
+                    showLocationDialog = false
+                    locationText = "" // 清空输入框
+                }) {
+                    Text("取消")
+                }
+            }
+        )
+    }
 }
 
 
@@ -309,5 +377,5 @@ fun CreatePostScreen(
 @Preview(showBackground = true)
 @Composable
 fun CreatePostScreenPreview() {
-    CreatePostScreen(onNavigateBack = {})
+    CreatePostScreen(onNavigateBack = {}, achievementId = "")
 }
